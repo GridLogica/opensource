@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full select-none">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Workspace Dashboard</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Google Sans & Material style fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'Outfit', 'Inter', 'sans-serif'],
+                        jakarta: ['Plus Jakarta Sans', 'sans-serif'],
+                        outfit: ['Outfit', 'sans-serif'],
+                        inter: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                        firacode: ['Fira Code', 'monospace'],
+                        poppins: ['Poppins', 'sans-serif']
+                    },
+                    borderRadius: {
+                        '4xl': '2rem',
+                        '5xl': '2.5rem',
+                        'm3': '28px'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom smooth scrollbars */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Material Glass & Surface Mechanics */
+        .m3-surface {
+            background: rgba(18, 22, 32, 0.88);
+            backdrop-filter: blur(28px) saturate(180%);
+            -webkit-backdrop-filter: blur(28px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+        }
+
+        .m3-card {
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
+        }
+
+        .m3-card:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.22);
+            transform: translateY(-1px);
+        }
+
+        .m3-pill-item {
+            transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+        }
+
+        .m3-pill-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            padding-left: 1.25rem;
+        }
+
+        /* Dynamic background scaling & blur */
+        .bg-zoom {
+            transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s ease;
+        }
+
+        /* Material Drawer Mechanics */
+        .nexus-drawer {
+            transition: transform 0.35s cubic-bezier(0.2, 0, 0, 1);
+            will-change: transform;
+        }
+
+        .nexus-submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s cubic-bezier(0.2, 0, 0, 1), opacity 0.25s ease;
+            opacity: 0;
+        }
+
+        .nexus-submenu.open {
+            max-height: 600px;
+            opacity: 1;
+        }
+
+        /* Dynamic Accent Theme Classes */
+        .theme-sky { --accent-color: #38bdf8; --accent-bg: rgba(56, 189, 248, 0.2); }
+        .theme-lavender { --accent-color: #c084fc; --accent-bg: rgba(192, 132, 252, 0.2); }
+        .theme-mint { --accent-color: #34d399; --accent-bg: rgba(52, 211, 153, 0.2); }
+        .theme-rose { --accent-color: #fb7185; --accent-bg: rgba(251, 113, 133, 0.2); }
+        .theme-amber { --accent-color: #fbbf24; --accent-bg: rgba(251, 191, 36, 0.2); }
+    </style>
+</head>
+
+<body class="h-full bg-slate-950 text-slate-100 font-sans overflow-hidden antialiased select-none theme-sky">
+
+    <!-- Full-screen Wallpaper -->
+    <div id="bg-container" class="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat bg-zoom scale-100" 
+         style="background-image: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2070&auto=format&fit=crop');">
+    </div>
+
+    <!-- Ambient Overlay -->
+    <div id="bg-overlay" class="fixed inset-0 z-0 bg-slate-950/25 transition-all duration-500"></div>
+
+    <!-- MAIN SCREEN: Ambient Clock & Date -->
+    <main class="relative z-10 h-full w-full pointer-events-none overflow-hidden">
+        <div id="clock-container" class="absolute transition-all duration-500 ease-out cursor-pointer group pointer-events-auto space-y-2 p-6 flex flex-col items-center text-center top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+            <h1 id="clock-time" class="text-7xl sm:text-9xl font-light tracking-tight text-white drop-shadow-[0_12px_35px_rgba(0,0,0,0.6)] transition-all duration-300">
+                00:00
+            </h1>
+            
+            <div id="clock-date-row" class="flex items-center justify-center gap-3 text-base sm:text-lg font-normal text-white/90 tracking-wide drop-shadow-md">
+                <span id="clock-date">Monday, August 10</span>
+                <span id="clock-dot" class="text-white/40">•</span>
+                <span id="clock-greeting" class="text-white/80 font-medium">Good Day</span>
+            </div>
+        </div>
+    </main>
+
+    <!-- LEFT EDGE SENSOR & GLOWING INDICATOR -->
+    <div id="nexus-hover-zone" class="fixed top-0 left-0 h-full w-8 z-40 cursor-pointer group flex items-center justify-start pointer-events-auto">
+        <div id="accent-edge-indicator" class="w-1.5 h-16 bg-sky-400/60 group-hover:bg-sky-300 rounded-r-full transition-all duration-300 group-hover:w-2.5 group-hover:h-28 opacity-70 group-hover:opacity-100 shadow-[0_0_15px_rgba(56,189,248,0.6)]"></div>
+    </div>
+
+    <!-- MATERIAL YOU MENU TOGGLE BUTTON (Top Left) -->
+    <button id="nexus-toggle-btn" 
+            aria-label="Toggle Menu"
+            class="fixed top-6 left-6 z-50 px-5 py-2.5 rounded-full m3-card text-white hover:text-white active:scale-95 transition-all duration-200 text-xs font-semibold tracking-wide flex items-center gap-2 shadow-xl pointer-events-auto border border-white/20">
+        <span id="nexus-btn-text">Menu</span>
+    </button>
+
+    <!-- NEXUS OVERLAY BACKDROP -->
+    <div id="nexus-overlay" class="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-30 opacity-0 pointer-events-none transition-opacity duration-300"></div>
+
+    <!-- MATERIAL YOU DRAWER -->
+    <aside id="nexus-drawer" class="nexus-drawer fixed top-0 left-0 h-full w-84 max-w-[85vw] m3-surface border-r border-white/10 text-slate-100 z-40 -translate-x-full shadow-2xl flex flex-col justify-between overflow-hidden rounded-r-3xl">
+        <div class="p-6 border-b border-white/10 space-y-5 pt-20 relative">
+            <!-- Header Title -->
+            <div class="flex items-center justify-between relative z-10">
+                <div class="space-y-0.5">
+                    <div class="flex items-center gap-2">
+                        <span id="drawer-badge" class="text-[11px] font-semibold tracking-wider text-sky-400 uppercase">Workspace</span>
+                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    </div>
+                    <h3 class="font-bold text-xl text-white tracking-tight leading-tight" id="drawer-user-title">My Workspace</h3>
+                </div>
+            </div>
+
+            <!-- Material 3 Search Input -->
+            <div class="relative flex items-center pt-1">
+                <input type="text" id="nexus-search-input" placeholder="Search sections & apps..." 
+                       class="w-full bg-white/10 text-xs text-white placeholder-white/40 px-4 py-3 rounded-full border border-white/10 focus:outline-none focus:border-sky-400/60 focus:bg-white/15 transition-all font-sans">
+                <button id="nexus-search-clear" class="absolute right-3.5 text-xs text-white/50 hover:text-white hidden font-semibold">
+                    Clear
+                </button>
+            </div>
+        </div>
+
+        <!-- Dynamic Navigation Items -->
+        <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1 relative" id="nexus-nav-list">
+            <!-- Dynamically populated from JSON / State -->
+        </nav>
+
+        <!-- Drawer Footer -->
+        <div class="p-4 border-t border-white/10 bg-slate-950/60 flex items-center justify-between text-xs text-white/60 relative">
+            <div class="flex items-center gap-2 text-[11px] font-medium text-emerald-400">
+                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                <span id="drawer-footer-status-text">Workspace Ready</span>
+            </div>
+            <span id="drawer-footer-tag" class="text-[11px] text-white/40 font-mono">v3.0</span>
+        </div>
+    </aside>
+
+    <!-- OVERLAY 1: APPS & SERVICES LAUNCHER MODAL -->
+    <div id="modal-services" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-2xl flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="m3-surface w-full max-w-4xl rounded-m3 p-6 sm:p-8 space-y-6 transform scale-95 transition-all duration-300" id="modal-services-card">
+            <div class="flex items-center justify-between pb-4 border-b border-white/10">
+                <div>
+                    <h2 class="font-bold text-2xl text-white">Application Hub</h2>
+                    <p class="text-xs text-sky-300/80 font-medium" id="services-count-text">Quick Launch Shortcuts</p>
+                </div>
+
+                <button class="modal-close-btn px-4 py-2 text-xs font-semibold text-white/70 hover:text-white rounded-full bg-white/10 hover:bg-white/20 transition-colors" data-target="modal-services">
+                    Close
+                </button>
+            </div>
+
+            <div id="services-grid-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 max-h-[60vh] overflow-y-auto pr-1">
+                <!-- Dynamically Populated Cards -->
+            </div>
+        </div>
+    </div>
+
+    <!-- OVERLAY 2: SYSTEM HEALTH & STATS MODAL -->
+    <div id="modal-telemetry" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-2xl flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="m3-surface w-full max-w-xl rounded-m3 p-6 sm:p-8 space-y-6 transform scale-95 transition-all duration-300" id="modal-telemetry-card">
+            <div class="flex items-center justify-between pb-4 border-b border-white/10">
+                <div>
+                    <h2 class="font-bold text-2xl text-white">System Telemetry</h2>
+                    <p class="text-xs text-emerald-400 font-medium">Live Metrics Overview</p>
+                </div>
+
+                <button class="modal-close-btn px-4 py-2 text-xs font-semibold text-white/70 hover:text-white rounded-full bg-white/10 hover:bg-white/20 transition-colors" data-target="modal-telemetry">
+                    Close
+                </button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="p-5 rounded-3xl bg-white/5 border border-white/10 space-y-3">
+                    <div class="flex justify-between text-xs font-semibold">
+                        <span class="text-white/80">Processor</span>
+                        <span id="val-cpu" class="text-sky-400">22%</span>
+                    </div>
+                    <div class="w-full bg-white/10 h-2.5 rounded-full overflow-hidden">
+                        <div id="bar-cpu" class="bg-gradient-to-r from-sky-400 to-blue-500 h-full rounded-full transition-all duration-500" style="width: 22%"></div>
+                    </div>
+                    <p class="text-[11px] text-white/50">Optimal Load</p>
+                </div>
+
+                <div class="p-5 rounded-3xl bg-white/5 border border-white/10 space-y-3">
+                    <div class="flex justify-between text-xs font-semibold">
+                        <span class="text-white/80">Memory</span>
+                        <span id="val-ram" class="text-indigo-300">44%</span>
+                    </div>
+                    <div class="w-full bg-white/10 h-2.5 rounded-full overflow-hidden">
+                        <div id="bar-ram" class="bg-gradient-to-r from-indigo-400 to-purple-400 h-full rounded-full transition-all duration-500" style="width: 44%"></div>
+                    </div>
+                    <p class="text-[11px] text-white/50">28.1 GB Active</p>
+                </div>
+
+                <div class="p-5 rounded-3xl bg-white/5 border border-white/10 space-y-3">
+                    <div class="flex justify-between text-xs font-semibold">
+                        <span class="text-white/80">Storage</span>
+                        <span class="text-emerald-400">68%</span>
+                    </div>
+                    <div class="w-full bg-white/10 h-2.5 rounded-full overflow-hidden">
+                        <div class="bg-gradient-to-r from-emerald-400 to-teal-400 h-full rounded-full" style="width: 68%"></div>
+                    </div>
+                    <p class="text-[11px] text-white/50">7.7 TB Free</p>
+                </div>
+
+                <div class="p-5 rounded-3xl bg-white/5 border border-white/10 space-y-3">
+                    <div class="flex justify-between text-xs font-semibold">
+                        <span class="text-white/80">Network</span>
+                        <span class="text-amber-300">Connected</span>
+                    </div>
+                    <div class="flex items-center justify-between text-xs font-semibold text-white/90 pt-1">
+                        <span class="text-emerald-400">142 MB/s Down</span>
+                        <span class="text-sky-400">18 MB/s Up</span>
+                    </div>
+                    <p class="text-[11px] text-white/50">Gigabit Link</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OVERLAY 3: COMMAND PALETTE MODAL (Ctrl+K) -->
+    <div id="modal-cmd" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-2xl flex items-start justify-center pt-24 p-4 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="m3-surface w-full max-w-xl rounded-m3 overflow-hidden border border-white/15 shadow-2xl transform scale-95 transition-all duration-300" id="modal-cmd-card">
+            <div class="p-5 border-b border-white/10 flex items-center gap-3">
+                <input type="text" id="cmd-input" placeholder="Type a command or search section..." 
+                       class="w-full bg-transparent text-white placeholder-white/40 focus:outline-none text-base font-medium">
+                <kbd class="px-3 py-1 rounded-full bg-white/10 text-xs text-white/70 font-semibold border border-white/10">ESC</kbd>
+            </div>
+
+            <div class="max-h-72 overflow-y-auto p-3 space-y-1.5" id="cmd-results-list">
+                <button class="modal-close-btn w-full p-3.5 rounded-2xl text-left text-white/90 hover:bg-white/10 transition-all flex items-center justify-between text-sm font-medium" data-target="modal-cmd" onclick="cycleBg()">
+                    <span>Cycle Wallpaper Background</span>
+                    <span class="text-xs text-sky-300 bg-sky-500/20 px-2.5 py-1 rounded-full">Action</span>
+                </button>
+                <button class="modal-close-btn w-full p-3.5 rounded-2xl text-left text-white/90 hover:bg-white/10 transition-all flex items-center justify-between text-sm font-medium" data-target="modal-cmd" onclick="openModal('modal-json')">
+                    <span>Open JSON Config Editor</span>
+                    <span class="text-xs text-purple-300 bg-purple-500/20 px-2.5 py-1 rounded-full">Config</span>
+                </button>
+                <button class="modal-close-btn w-full p-3.5 rounded-2xl text-left text-white/90 hover:bg-white/10 transition-all flex items-center justify-between text-sm font-medium" data-target="modal-cmd" onclick="openModal('modal-settings')">
+                    <span>Open Workspace Settings</span>
+                    <span class="text-xs text-emerald-300 bg-emerald-500/20 px-2.5 py-1 rounded-full">Settings</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- OVERLAY 4: LIVE JSON CONFIG EDITOR MODAL -->
+    <div id="modal-json" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-2xl flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="m3-surface w-full max-w-3xl rounded-m3 p-6 sm:p-8 space-y-5 transform scale-95 transition-all duration-300" id="modal-json-card">
+            <div class="flex items-center justify-between pb-4 border-b border-white/10">
+                <div>
+                    <h2 class="font-bold text-2xl text-white">JSON Configuration</h2>
+                    <p class="text-xs text-white/60 font-medium">Full raw workspace configuration definition</p>
+                </div>
+
+                <button class="modal-close-btn px-4 py-2 text-xs font-semibold text-white/70 hover:text-white rounded-full bg-white/10 hover:bg-white/20 transition-colors" data-target="modal-json">
+                    Close
+                </button>
+            </div>
+
+            <!-- JSON Input Textarea -->
+            <div class="relative">
+                <textarea id="json-editor-textarea" spellcheck="false" 
+                          class="w-full h-80 bg-slate-950/80 text-xs font-mono text-emerald-300 p-4 rounded-2xl border border-white/10 focus:outline-none focus:border-sky-400/50 resize-none leading-relaxed overflow-y-auto selection:bg-sky-500/30"></textarea>
+                <div id="json-error-msg" class="text-xs text-rose-400 font-mono mt-2 hidden">
+                    Invalid JSON format
+                </div>
+            </div>
+
+            <!-- JSON Actions -->
+            <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-white/10">
+                <div class="flex items-center gap-2">
+                    <button id="btn-export-json" class="px-4 py-2.5 rounded-full bg-white/10 text-xs font-semibold text-white hover:bg-white/20 transition-all">
+                        Export JSON
+                    </button>
+                    <label class="px-4 py-2.5 rounded-full bg-white/10 text-xs font-semibold text-white hover:bg-white/20 transition-all cursor-pointer">
+                        Import JSON
+                        <input type="file" id="json-file-input" accept=".json" class="hidden">
+                    </label>
+                    <button id="btn-reset-json" class="px-4 py-2.5 rounded-full bg-white/5 text-xs font-semibold text-white/50 hover:text-rose-400 transition-all">
+                        Reset Defaults
+                    </button>
+                </div>
+
+                <button id="btn-apply-json" class="px-6 py-2.5 rounded-full bg-sky-400 hover:bg-sky-300 text-slate-950 font-bold text-xs transition-all shadow-lg shadow-sky-500/20">
+                    Apply Changes
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- OVERLAY 5: PREFERENCES, VISUAL BUILDER & SETTINGS MODAL -->
+    <div id="modal-settings" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-2xl flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="m3-surface w-full max-w-2xl rounded-m3 p-6 sm:p-8 space-y-6 transform scale-95 transition-all duration-300 max-h-[90vh] overflow-y-auto" id="modal-settings-card">
+            
+            <div class="flex items-center justify-between pb-4 border-b border-white/10">
+                <div>
+                    <h2 class="font-bold text-2xl text-white">Workspace Settings</h2>
+                    <p class="text-xs text-white/60 font-medium">Customization & Easy Menu Manager</p>
+                </div>
+
+                <button class="modal-close-btn px-4 py-2 text-xs font-semibold text-white/70 hover:text-white rounded-full bg-white/10 hover:bg-white/20 transition-colors" data-target="modal-settings">
+                    Close
+                </button>
+            </div>
+
+            <!-- Settings Tabs Header -->
+            <div class="flex items-center gap-2 p-1 bg-white/5 rounded-full border border-white/10">
+                <button id="tab-btn-appearance" class="flex-1 py-2 rounded-full text-xs font-semibold bg-sky-400 text-slate-950 transition-all">
+                    Appearance & Backgrounds
+                </button>
+                <button id="tab-btn-builder" class="flex-1 py-2 rounded-full text-xs font-semibold text-white/70 hover:text-white transition-all">
+                    Visual Menu Manager
+                </button>
+            </div>
+
+            <!-- TAB 1: APPEARANCE & WALLPAPERS -->
+            <div id="tab-content-appearance" class="space-y-5">
+                
+                <!-- Workspace Custom Text & Titles -->
+                <div class="p-4 rounded-3xl bg-white/5 border border-white/10 space-y-3">
+                    <label class="text-xs font-semibold text-white block">Menu Branding & Static Text</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="space-y-1">
+                            <span class="text-[11px] text-white/60">Workspace Main Title</span>
+                            <input type="text" id="setting-workspace-title" placeholder="My Workspace" 
+                                   class="w-full bg-slate-950/70 text-xs text-white px-3.5 py-2 rounded-xl border border-white/10 focus:outline-none focus:border-sky-400">
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-[11px] text-white/60">Header Subtext / Badge</span>
+                            <input type="text" id="setting-workspace-badge" placeholder="Workspace" 
+                                   class="w-full bg-slate-950/70 text-xs text-white px-3.5 py-2 rounded-xl border border-white/10 focus:outline-none focus:border-sky-400">
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-[11px] text-white/60">Footer Status Text</span>
+                            <input type="text" id="setting-footer-status" placeholder="Workspace Ready" 
+                                   class="w-full bg-slate-950/70 text-xs text-white px-3.5 py-2 rounded-xl border border-white/10 focus:outline-none focus:border-sky-400">
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-[11px] text-white/60">Footer Tag / Version</span>
+                            <input type="text" id="setting-footer-tag" placeholder="v3.0" 
+                                   class="w-full bg-slate-950/70 text-xs text-white px-3.5 py-2 rounded-xl border border-white/10 focus:outline-none focus:border-sky-400">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preset Wallpapers Gallery -->
+                <div class="p-4 rounded-3xl bg-white/5 border border-white/10 space-y-3">
+                    <label class="text-xs font-semibold text-white block">Preset Vibrant Wallpapers</label>
+                    <div class="grid grid-cols-4 gap-2.5" id="preset-wallpapers-grid">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Custom Wallpaper Input -->
+                <div class="p-4 rounded-3xl bg-white/5 border border-white/10 space-y-3">
+                    <label class="text-xs font-semibold text-white block">Custom Wallpaper URL / Path</label>
+                    <input type="text" id="setting-bg-url-input" placeholder="https://images.unsplash.com/... or ./wallpaper.jpg" 
+                           class="w-full bg-slate-950/70 text-xs text-white placeholder-white/30 px-4 py-2.5 rounded-full border border-white/10 focus:outline-none focus:border-sky-400">
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="btn-apply-bg-url" class="py-2.5 px-3 rounded-full bg-sky-400 hover:bg-sky-300 text-slate-950 font-bold text-xs transition-all">
+                            Set Active Background
+                        </button>
+                        <button id="btn-add-bg-url" class="py-2.5 px-3 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-semibold transition-all">
+                            Add to Playlist
+                        </button>
+                    </div>
+
+                    <!-- Local File Picker -->
+                    <label class="w-full py-2.5 px-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-white/80 hover:text-white transition-all cursor-pointer flex items-center justify-center">
+                        Choose File from Device
+                        <input type="file" id="setting-local-bg-input" accept="image/*" class="hidden">
+                    </label>
+                </div>
+
+                <!-- Clock & Layout Options -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <!-- Clock Position -->
+                    <div class="p-4 rounded-3xl bg-white/5 border border-white/10 space-y-1.5">
+                        <label class="text-xs font-semibold text-white block">Clock Position</label>
+                        <select id="setting-clock-position" class="w-full bg-slate-950/80 text-xs text-white rounded-2xl p-2.5 border border-white/10 focus:outline-none">
+                            <option value="center">Center Lockscreen</option>
+                            <option value="top-right">Top Right</option>
+                            <option value="bottom-right">Bottom Right</option>
+                            <option value="top-left">Top Left</option>
+                            <option value="bottom-left">Bottom Left</option>
+                        </select>
+                    </div>
+
+                    <!-- Clock Font -->
+                    <div class="p-4 rounded-3xl bg-white/5 border border-white/10 space-y-1.5">
+                        <label class="text-xs font-semibold text-white block">Clock Typeface</label>
+                        <select id="setting-font-family" class="w-full bg-slate-950/80 text-xs text-white rounded-2xl p-2.5 border border-white/10 focus:outline-none">
+                            <option value="Plus Jakarta Sans">Plus Jakarta Sans</option>
+                            <option value="Outfit">Outfit</option>
+                            <option value="Inter">Inter</option>
+                            <option value="Poppins">Poppins</option>
+                            <option value="JetBrains Mono">JetBrains Mono</option>
+                            <option value="Fira Code">Fira Code</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Color Accent Theme & Clock Options -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <!-- Theme Accent -->
+                    <div class="p-4 rounded-3xl bg-white/5 border border-white/10 space-y-1.5">
+                        <label class="text-xs font-semibold text-white block">Accent Palette</label>
+                        <select id="setting-accent-theme" class="w-full bg-slate-950/80 text-xs text-white rounded-2xl p-2.5 border border-white/10 focus:outline-none">
+                            <option value="theme-sky">Sky Blue</option>
+                            <option value="theme-lavender">Soft Lavender</option>
+                            <option value="theme-mint">Mint Emerald</option>
+                            <option value="theme-rose">Sunset Rose</option>
+                            <option value="theme-amber">Warm Amber</option>
+                        </select>
+                    </div>
+
+                    <!-- 12h/24h Format -->
+                    <div class="p-4 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-between">
+                        <div>
+                            <div class="text-xs font-semibold text-white">Time Format</div>
+                            <div class="text-[11px] text-white/50">12-Hour AM/PM</div>
+                        </div>
+                        <input type="checkbox" id="setting-clock-12h" class="w-5 h-5 accent-sky-400 rounded cursor-pointer">
+                    </div>
+                </div>
+
+                <!-- Display Toggles -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="p-4 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-between">
+                        <span class="text-xs font-semibold text-white">Show Date</span>
+                        <input type="checkbox" id="setting-show-date" checked class="w-5 h-5 accent-sky-400 rounded cursor-pointer">
+                    </div>
+                    <div class="p-4 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-between">
+                        <span class="text-xs font-semibold text-white">Show Greeting</span>
+                        <input type="checkbox" id="setting-show-greeting" checked class="w-5 h-5 accent-sky-400 rounded cursor-pointer">
+                    </div>
+                </div>
+
+                <!-- Background Effects Sliders -->
+                <div class="p-4 rounded-3xl bg-white/5 border border-white/10 space-y-4">
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between text-xs font-semibold text-white">
+                            <span>Background Dimming</span>
+                            <span id="dim-val" class="text-sky-300">25%</span>
+                        </div>
+                        <input type="range" id="setting-dim" min="0" max="80" value="25" class="w-full accent-sky-400 cursor-pointer">
+                    </div>
+
+                    <div class="space-y-1.5 pt-2 border-t border-white/10">
+                        <div class="flex justify-between text-xs font-semibold text-white">
+                            <span>Background Blur</span>
+                            <span id="blur-val" class="text-sky-300">0px</span>
+                        </div>
+                        <input type="range" id="setting-blur" min="0" max="20" value="0" class="w-full accent-sky-400 cursor-pointer">
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: VISUAL MENU ITEM MANAGER -->
+            <div id="tab-content-builder" class="space-y-4 hidden">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xs font-bold text-sky-400 uppercase tracking-wider">Navigation Menu Structure</h3>
+                    <button id="btn-builder-add-item" class="px-3.5 py-1.5 rounded-full bg-sky-400 hover:bg-sky-300 text-slate-950 font-bold text-xs transition-all">
+                        + Add Section / Link
+                    </button>
+                </div>
+
+                <div id="visual-builder-list" class="space-y-3 max-h-96 overflow-y-auto pr-1">
+                    <!-- Populated dynamically by JS -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Preset vibrant phone-style wallpapers
+            const presetWallpapers = [
+                "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2070&auto=format&fit=crop",
+                "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop",
+                "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2070&auto=format&fit=crop",
+                "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop",
+                "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2070&auto=format&fit=crop",
+                "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=2070&auto=format&fit=crop"
+            ];
+
+            // Default Consumer Dashboard Configuration
+            const defaultConfig = {
+                "nodeName": "My Workspace",
+                "nodeBadge": "Workspace",
+                "footerStatus": "Workspace Ready",
+                "footerTag": "v3.0",
+                "clock12h": false,
+                "showDate": true,
+                "showGreeting": true,
+                "clockPosition": "center",
+                "fontFamily": "Plus Jakarta Sans",
+                "accentTheme": "theme-sky",
+                "dimAmount": 25,
+                "blurAmount": 0,
+                "backgrounds": presetWallpapers,
+                "navigation": [
+                    {
+                        "type": "category",
+                        "title": "Applications & Apps",
+                        "sublinks": [
+                            { "title": "All Applications", "action": "modal:modal-services", "badge": "Launch" },
+                            { "title": "Smart Home", "url": "http://homeassistant.local:8123" },
+                            { "title": "Media Library", "url": "http://jellyfin.local:8096" },
+                            { "title": "Cloud Storage", "url": "https://nextcloud.local" }
+                        ]
+                    },
+                    {
+                        "type": "item",
+                        "title": "System Telemetry",
+                        "action": "modal:modal-telemetry",
+                        "badge": "Live"
+                    },
+                    {
+                        "type": "header",
+                        "title": "Personal Shortcuts"
+                    },
+                    {
+                        "type": "item",
+                        "title": "GitHub Repositories",
+                        "url": "https://github.com"
+                    },
+                    {
+                        "type": "category",
+                        "title": "Options",
+                        "sublinks": [
+                            { "title": "Dashboard Settings", "action": "modal:modal-settings" },
+                            { "title": "Search Commands", "action": "modal:modal-cmd", "shortcut": "⌘K" },
+                            { "title": "Change Wallpaper", "action": "action:cycleBg" },
+                            { "title": "Edit JSON Config", "action": "modal:modal-json" }
+                        ]
+                    }
+                ],
+                "servicesGrid": [
+                    { "name": "Smart Home", "url": "http://homeassistant.local:8123", "subtext": "Automation" },
+                    { "name": "Jellyfin Media", "url": "http://jellyfin.local:8096", "subtext": "Streaming" },
+                    { "name": "Nextcloud", "url": "https://nextcloud.local", "subtext": "Personal Cloud" },
+                    { "name": "Virtual Server", "url": "https://proxmox.local:8006", "subtext": "Infrastructure" },
+                    { "name": "Containers", "url": "https://portainer.local:9443", "subtext": "Docker Manager" },
+                    { "name": "Analytics", "url": "http://grafana.local:3000", "subtext": "Metrics & Dashboards" },
+                    { "name": "DNS Shield", "url": "http://pihole.local/admin", "subtext": "Ad-Block Guard" },
+                    { "name": "Storage Pool", "url": "https://truenas.local", "subtext": "NAS Storage" }
+                ]
+            };
+
+            // Load saved configuration from LocalStorage if available
+            let currentConfig = defaultConfig;
+            try {
+                const saved = localStorage.getItem('homelab_dashboard_config');
+                if (saved) {
+                    currentConfig = JSON.parse(saved);
+                }
+            } catch (e) {
+                console.warn('LocalStorage unavailable, using default config.');
+            }
+
+            let wallpapers = currentConfig.backgrounds || presetWallpapers;
+            let currentBgIndex = 0;
+
+            const bgContainer = document.getElementById('bg-container');
+            const bgOverlay = document.getElementById('bg-overlay');
+
+            function saveState() {
+                try {
+                    localStorage.setItem('homelab_dashboard_config', JSON.stringify(currentConfig));
+                } catch(e) {}
+            }
+
+            function setWallpaper(src) {
+                if (!src) return;
+                const img = new Image();
+                img.onload = () => {
+                    if (bgContainer) bgContainer.style.backgroundImage = `url('${src}')`;
+                };
+                img.onerror = () => {
+                    if (bgContainer) bgContainer.style.backgroundImage = 'none';
+                };
+                img.src = src;
+            }
+
+            function cycleBg() {
+                if (!wallpapers || wallpapers.length === 0) return;
+                currentBgIndex = (currentBgIndex + 1) % wallpapers.length;
+                setWallpaper(wallpapers[currentBgIndex]);
+            }
+            window.cycleBg = cycleBg;
+
+            function applyClockPosition(pos) {
+                const clockContainer = document.getElementById('clock-container');
+                const clockDateRow = document.getElementById('clock-date-row');
+                if (!clockContainer) return;
+
+                clockContainer.className = 'absolute transition-all duration-500 ease-out cursor-pointer group pointer-events-auto space-y-2 p-6 flex flex-col';
+                if (clockDateRow) clockDateRow.className = 'flex items-center gap-3 text-base sm:text-lg font-normal text-white/90 tracking-wide drop-shadow-md';
+
+                switch(pos) {
+                    case 'top-right':
+                        clockContainer.classList.add('top-8', 'right-8', 'sm:top-12', 'sm:right-12', 'items-end', 'text-right');
+                        if (clockDateRow) clockDateRow.classList.add('justify-end');
+                        break;
+                    case 'bottom-right':
+                        clockContainer.classList.add('bottom-8', 'right-8', 'sm:bottom-12', 'sm:right-12', 'items-end', 'text-right');
+                        if (clockDateRow) clockDateRow.classList.add('justify-end');
+                        break;
+                    case 'top-left':
+                        clockContainer.classList.add('top-24', 'left-8', 'sm:left-12', 'items-start', 'text-left');
+                        if (clockDateRow) clockDateRow.classList.add('justify-start');
+                        break;
+                    case 'bottom-left':
+                        clockContainer.classList.add('bottom-8', 'left-8', 'sm:left-12', 'items-start', 'text-left');
+                        if (clockDateRow) clockDateRow.classList.add('justify-start');
+                        break;
+                    case 'center':
+                    default:
+                        clockContainer.classList.add('top-1/2', 'left-1/2', '-translate-x-1/2', '-translate-y-1/2', 'items-center', 'text-center');
+                        if (clockDateRow) clockDateRow.classList.add('justify-center');
+                        break;
+                }
+            }
+
+            function applyFontFamily(font) {
+                const clockTime = document.getElementById('clock-time');
+                if (clockTime) {
+                    clockTime.style.fontFamily = `"${font}", "Plus Jakarta Sans", sans-serif`;
+                }
+            }
+
+            function applyAccentTheme(themeClass) {
+                document.body.className = `h-full bg-slate-950 text-slate-100 font-sans overflow-hidden antialiased select-none ${themeClass || 'theme-sky'}`;
+            }
+
+            function renderDashboard(config) {
+                if (typeof config.backgrounds === 'string') {
+                    config.backgrounds = [config.backgrounds];
+                }
+                
+                wallpapers = (Array.isArray(config.backgrounds) && config.backgrounds.length > 0) 
+                    ? config.backgrounds 
+                    : presetWallpapers;
+
+                currentConfig.backgrounds = wallpapers;
+
+                if (wallpapers.length > 0) {
+                    setWallpaper(wallpapers[currentBgIndex % wallpapers.length]);
+                }
+
+                applyClockPosition(config.clockPosition || 'center');
+                applyFontFamily(config.fontFamily || 'Plus Jakarta Sans');
+                applyAccentTheme(config.accentTheme || 'theme-sky');
+
+                if (bgOverlay) {
+                    const dim = config.dimAmount !== undefined ? config.dimAmount : 25;
+                    bgOverlay.style.backgroundColor = `rgba(9, 13, 22, ${dim / 100})`;
+                }
+
+                if (bgContainer) {
+                    const blur = config.blurAmount !== undefined ? config.blurAmount : 0;
+                    bgContainer.style.filter = `blur(${blur}px)`;
+                }
+
+                const drawerUserTitle = document.getElementById('drawer-user-title');
+                const drawerBadge = document.getElementById('drawer-badge');
+                const drawerFooterStatusText = document.getElementById('drawer-footer-status-text');
+                const drawerFooterTag = document.getElementById('drawer-footer-tag');
+
+                if (drawerUserTitle) drawerUserTitle.textContent = config.nodeName || "My Workspace";
+                if (drawerBadge) drawerBadge.textContent = config.nodeBadge || "Workspace";
+                if (drawerFooterStatusText) drawerFooterStatusText.textContent = config.footerStatus || "Workspace Ready";
+                if (drawerFooterTag) drawerFooterTag.textContent = config.footerTag || "v3.0";
+
+                // Update settings inputs
+                const settingPosSelect = document.getElementById('setting-clock-position');
+                const settingFontSelect = document.getElementById('setting-font-family');
+                const settingThemeSelect = document.getElementById('setting-accent-theme');
+                const setting12h = document.getElementById('setting-clock-12h');
+                const settingShowDate = document.getElementById('setting-show-date');
+                const settingShowGreeting = document.getElementById('setting-show-greeting');
+
+                const settingWorkspaceTitle = document.getElementById('setting-workspace-title');
+                const settingWorkspaceBadge = document.getElementById('setting-workspace-badge');
+                const settingFooterStatus = document.getElementById('setting-footer-status');
+                const settingFooterTag = document.getElementById('setting-footer-tag');
+
+                if (settingWorkspaceTitle) settingWorkspaceTitle.value = config.nodeName || "My Workspace";
+                if (settingWorkspaceBadge) settingWorkspaceBadge.value = config.nodeBadge || "Workspace";
+                if (settingFooterStatus) settingFooterStatus.value = config.footerStatus || "Workspace Ready";
+                if (settingFooterTag) settingFooterTag.value = config.footerTag || "v3.0";
+
+                if (settingPosSelect) settingPosSelect.value = config.clockPosition || 'center';
+                if (settingFontSelect) settingFontSelect.value = config.fontFamily || 'Plus Jakarta Sans';
+                if (settingThemeSelect) settingThemeSelect.value = config.accentTheme || 'theme-sky';
+                if (setting12h) setting12h.checked = !!config.clock12h;
+                if (settingShowDate) settingShowDate.checked = config.showDate !== false;
+                if (settingShowGreeting) settingShowGreeting.checked = config.showGreeting !== false;
+
+                // Render Navigation Drawer
+                const navContainer = document.getElementById('nexus-nav-list');
+                if (!navContainer) return;
+                navContainer.innerHTML = '';
+
+                (config.navigation || []).forEach((item, index) => {
+                    if (item.type === 'header') {
+                        const h = document.createElement('div');
+                        h.className = 'pt-5 pb-1.5 px-4 text-[11px] tracking-wider font-semibold text-white/40 uppercase';
+                        h.textContent = item.title;
+                        navContainer.appendChild(h);
+                    } else if (item.type === 'category') {
+                        const cat = document.createElement('div');
+                        cat.className = 'nexus-category space-y-1';
+                        const subId = `submenu-dynamic-${index}`;
+                        
+                        cat.innerHTML = `
+                            <button class="m3-pill-item nexus-accordion-trigger w-full px-4 py-3 rounded-2xl flex items-center justify-between text-white/90 hover:text-white transition-all font-medium text-xs" data-target="${subId}">
+                                <span class="tracking-tight text-sm font-semibold">${item.title}</span>
+                                <span class="nexus-indicator text-xs text-white/40 font-bold transition-transform duration-200">+</span>
+                            </button>
+                            <div id="${subId}" class="nexus-submenu pl-4 pr-1 py-1 space-y-1"></div>
+                        `;
+
+                        const subContainer = cat.querySelector(`#${subId}`);
+                        (item.sublinks || []).forEach(sub => {
+                            const subBadge = sub.badge ? `<span class="text-[10px] font-semibold text-sky-200 bg-sky-500/20 px-2.5 py-0.5 rounded-full">${sub.badge}</span>` : '';
+                            const subShortcut = sub.shortcut ? `<kbd class="text-[10px] font-medium text-white/50 border border-white/10 px-2 py-0.5 rounded-full">${sub.shortcut}</kbd>` : '';
+
+                            if (sub.url) {
+                                const a = document.createElement('a');
+                                a.href = sub.url;
+                                a.target = "_blank";
+                                a.className = "w-full py-2.5 px-4 rounded-xl text-xs font-medium text-white/70 hover:text-white hover:bg-white/10 flex items-center justify-between transition-all";
+                                a.innerHTML = `
+                                    <span>${sub.title}</span>
+                                    <span class="text-[10px] font-semibold text-white/30 uppercase">Open</span>
+                                `;
+                                subContainer.appendChild(a);
+                            } else {
+                                const btn = document.createElement('button');
+                                btn.className = "w-full py-2.5 px-4 rounded-xl text-xs font-medium text-white/70 hover:text-white hover:bg-white/10 flex items-center justify-between text-left transition-all";
+                                btn.onclick = () => handleAction(sub.action);
+                                btn.innerHTML = `
+                                    <span>${sub.title}</span>
+                                    ${subBadge}
+                                    ${subShortcut}
+                                `;
+                                subContainer.appendChild(btn);
+                            }
+                        });
+
+                        navContainer.appendChild(cat);
+                    } else if (item.type === 'item') {
+                        const itemBadge = item.badge ? `<span class="text-[10px] font-semibold text-emerald-300 bg-emerald-500/20 px-2.5 py-0.5 rounded-full">${item.badge}</span>` : '';
+
+                        if (item.url) {
+                            const a = document.createElement('a');
+                            a.href = item.url;
+                            a.target = "_blank";
+                            a.className = "m3-pill-item w-full px-4 py-3 rounded-2xl flex items-center justify-between text-white/90 hover:text-white transition-all text-xs font-semibold";
+                            a.innerHTML = `
+                                <span>${item.title}</span>
+                                <span class="text-[10px] font-semibold text-white/40 uppercase">Open</span>
+                            `;
+                            navContainer.appendChild(a);
+                        } else {
+                            const btn = document.createElement('button');
+                            btn.className = "m3-pill-item w-full px-4 py-3 rounded-2xl flex items-center justify-between text-white/90 hover:text-white transition-all text-xs font-semibold";
+                            btn.onclick = () => handleAction(item.action);
+                            btn.innerHTML = `
+                                <span>${item.title}</span>
+                                ${itemBadge}
+                            `;
+                            navContainer.appendChild(btn);
+                        }
+                    }
+                });
+
+                // Render App Grid Services
+                const gridContainer = document.getElementById('services-grid-container');
+                if (gridContainer && config.servicesGrid) {
+                    gridContainer.innerHTML = '';
+                    const countTxt = document.getElementById('services-count-text');
+                    if (countTxt) countTxt.textContent = `${config.servicesGrid.length} Applications Available`;
+
+                    config.servicesGrid.forEach(s => {
+                        const a = document.createElement('a');
+                        a.href = s.url;
+                        a.target = "_blank";
+                        a.className = "p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-white/25 hover:bg-white/10 transition-all group flex flex-col justify-between h-28 shadow-md";
+                        a.innerHTML = `
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-bold text-sky-300 bg-sky-500/20 px-2.5 py-0.5 rounded-full uppercase">App</span>
+                            </div>
+                            <div>
+                                <div class="font-bold text-sm text-white tracking-tight">${s.name}</div>
+                                <div class="text-xs text-white/50 font-medium">${s.subtext || ''}</div>
+                            </div>
+                        `;
+                        gridContainer.appendChild(a);
+                    });
+                }
+
+                bindAccordionTriggers();
+                renderPresetGallery();
+                renderVisualBuilderList();
+                saveState();
+            }
+
+            function renderPresetGallery() {
+                const grid = document.getElementById('preset-wallpapers-grid');
+                if (!grid) return;
+                grid.innerHTML = '';
+
+                presetWallpapers.forEach((url, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'relative rounded-2xl overflow-hidden h-16 border border-white/20 hover:border-sky-400 transition-all bg-cover bg-center active:scale-95';
+                    btn.style.backgroundImage = `url('${url}')`;
+                    btn.onclick = () => {
+                        if (!Array.isArray(currentConfig.backgrounds)) currentConfig.backgrounds = [];
+                        currentConfig.backgrounds.unshift(url);
+                        currentBgIndex = 0;
+                        renderDashboard(currentConfig);
+                    };
+                    grid.appendChild(btn);
+                });
+            }
+
+            function renderVisualBuilderList() {
+                const container = document.getElementById('visual-builder-list');
+                if (!container) return;
+                container.innerHTML = '';
+
+                (currentConfig.navigation || []).forEach((nav, idx) => {
+                    const card = document.createElement('div');
+                    card.className = 'p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-2 text-xs';
+
+                    let typeBadge = nav.type;
+                    card.innerHTML = `
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-[10px] font-bold uppercase text-sky-300 bg-sky-500/20 px-2 py-0.5 rounded-full">${typeBadge}</span>
+                            <button class="text-xs text-rose-400 hover:text-rose-300 font-semibold" onclick="deleteNavItem(${idx})">Delete</button>
+                        </div>
+                        <input type="text" value="${nav.title || ''}" placeholder="Title..." 
+                               class="w-full bg-slate-950/70 px-3 py-1.5 rounded-xl border border-white/10 text-white text-xs focus:outline-none"
+                               onchange="updateNavItemTitle(${idx}, this.value)">
+                    `;
+
+                    container.appendChild(card);
+                });
+            }
+
+            window.deleteNavItem = function(idx) {
+                currentConfig.navigation.splice(idx, 1);
+                renderDashboard(currentConfig);
+            };
+
+            window.updateNavItemTitle = function(idx, newTitle) {
+                if (currentConfig.navigation[idx]) {
+                    currentConfig.navigation[idx].title = newTitle;
+                    renderDashboard(currentConfig);
+                }
+            };
+
+            const btnBuilderAddItem = document.getElementById('btn-builder-add-item');
+            if (btnBuilderAddItem) {
+                btnBuilderAddItem.onclick = () => {
+                    currentConfig.navigation.push({
+                        type: "item",
+                        title: "New Link",
+                        url: "https://google.com"
+                    });
+                    renderDashboard(currentConfig);
+                };
+            }
+
+            function handleAction(actionStr) {
+                if (!actionStr) return;
+                closeNexusMenu();
+                if (actionStr.startsWith('modal:')) {
+                    const modalId = actionStr.replace('modal:', '');
+                    openModal(modalId);
+                } else if (actionStr.startsWith('action:')) {
+                    const fnName = actionStr.replace('action:', '');
+                    if (fnName === 'cycleBg') cycleBg();
+                }
+            }
+
+            function bindAccordionTriggers() {
+                document.querySelectorAll('.nexus-accordion-trigger').forEach(trigger => {
+                    trigger.onclick = (e) => {
+                        e.stopPropagation();
+                        const targetId = trigger.getAttribute('data-target');
+                        const submenu = document.getElementById(targetId);
+                        const indicator = trigger.querySelector('.nexus-indicator');
+
+                        if (submenu) {
+                            const isOpen = submenu.classList.contains('open');
+                            if (isOpen) {
+                                submenu.classList.remove('open');
+                                if (indicator) indicator.textContent = '+';
+                            } else {
+                                submenu.classList.add('open');
+                                if (indicator) indicator.textContent = '−';
+                            }
+                        }
+                    };
+                });
+            }
+
+            // JSON Editor Actions
+            const jsonTextarea = document.getElementById('json-editor-textarea');
+            const jsonErrorMsg = document.getElementById('json-error-msg');
+            const btnApplyJson = document.getElementById('btn-apply-json');
+            const btnExportJson = document.getElementById('btn-export-json');
+            const btnResetJson = document.getElementById('btn-reset-json');
+            const jsonFileInput = document.getElementById('json-file-input');
+
+            function populateJsonEditor() {
+                if (jsonTextarea) {
+                    jsonTextarea.value = JSON.stringify(currentConfig, null, 2);
+                }
+            }
+
+            if (btnApplyJson) {
+                btnApplyJson.addEventListener('click', () => {
+                    try {
+                        const parsed = JSON.parse(jsonTextarea.value);
+                        currentConfig = parsed;
+                        renderDashboard(currentConfig);
+                        if (jsonErrorMsg) jsonErrorMsg.classList.add('hidden');
+                        closeModal('modal-json');
+                    } catch (e) {
+                        if (jsonErrorMsg) {
+                            jsonErrorMsg.classList.remove('hidden');
+                            jsonErrorMsg.textContent = `JSON Error: ${e.message}`;
+                        }
+                    }
+                });
+            }
+
+            if (btnExportJson) {
+                btnExportJson.addEventListener('click', () => {
+                    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentConfig, null, 2));
+                    const downloadAnchor = document.createElement('a');
+                    downloadAnchor.setAttribute("href", dataStr);
+                    downloadAnchor.setAttribute("download", "workspace-config.json");
+                    document.body.appendChild(downloadAnchor);
+                    downloadAnchor.click();
+                    downloadAnchor.remove();
+                });
+            }
+
+            if (btnResetJson) {
+                btnResetJson.addEventListener('click', () => {
+                    currentConfig = JSON.parse(JSON.stringify(defaultConfig));
+                    populateJsonEditor();
+                    renderDashboard(currentConfig);
+                    if (jsonErrorMsg) jsonErrorMsg.classList.add('hidden');
+                });
+            }
+
+            if (jsonFileInput) {
+                jsonFileInput.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (evt) => {
+                        try {
+                            const loaded = JSON.parse(evt.target.result);
+                            currentConfig = loaded;
+                            populateJsonEditor();
+                            renderDashboard(currentConfig);
+                            if (jsonErrorMsg) jsonErrorMsg.classList.add('hidden');
+                        } catch (err) {
+                            if (jsonErrorMsg) {
+                                jsonErrorMsg.classList.remove('hidden');
+                                jsonErrorMsg.textContent = 'Invalid JSON file format.';
+                            }
+                        }
+                    };
+                    reader.readAsText(file);
+                });
+            }
+
+            const bgUrlInput = document.getElementById('setting-bg-url-input');
+            const btnApplyBgUrl = document.getElementById('btn-apply-bg-url');
+            const btnAddBgUrl = document.getElementById('btn-add-bg-url');
+            const settingLocalBgInput = document.getElementById('setting-local-bg-input');
+
+            if (btnApplyBgUrl) {
+                btnApplyBgUrl.addEventListener('click', () => {
+                    const newUrl = bgUrlInput ? bgUrlInput.value.trim() : '';
+                    if (!newUrl) return;
+
+                    if (!Array.isArray(currentConfig.backgrounds)) currentConfig.backgrounds = [];
+                    currentConfig.backgrounds[currentBgIndex % Math.max(1, currentConfig.backgrounds.length)] = newUrl;
+                    renderDashboard(currentConfig);
+                    populateJsonEditor();
+                });
+            }
+
+            if (btnAddBgUrl) {
+                btnAddBgUrl.addEventListener('click', () => {
+                    const newUrl = bgUrlInput ? bgUrlInput.value.trim() : '';
+                    if (!newUrl) return;
+
+                    if (!Array.isArray(currentConfig.backgrounds)) currentConfig.backgrounds = [];
+                    currentConfig.backgrounds.push(newUrl);
+                    currentBgIndex = currentConfig.backgrounds.length - 1;
+                    renderDashboard(currentConfig);
+                    populateJsonEditor();
+                });
+            }
+
+            if (settingLocalBgInput) {
+                settingLocalBgInput.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (evt) => {
+                        const dataUrl = evt.target.result;
+                        if (!Array.isArray(currentConfig.backgrounds)) currentConfig.backgrounds = [];
+                        currentConfig.backgrounds.push(dataUrl);
+                        currentBgIndex = currentConfig.backgrounds.length - 1;
+                        renderDashboard(currentConfig);
+                        populateJsonEditor();
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            const settingClockPosition = document.getElementById('setting-clock-position');
+            if (settingClockPosition) {
+                settingClockPosition.addEventListener('change', (e) => {
+                    currentConfig.clockPosition = e.target.value;
+                    renderDashboard(currentConfig);
+                });
+            }
+
+            const settingFontFamily = document.getElementById('setting-font-family');
+            if (settingFontFamily) {
+                settingFontFamily.addEventListener('change', (e) => {
+                    currentConfig.fontFamily = e.target.value;
+                    renderDashboard(currentConfig);
+                });
+            }
+
+            const settingAccentTheme = document.getElementById('setting-accent-theme');
+            if (settingAccentTheme) {
+                settingAccentTheme.addEventListener('change', (e) => {
+                    currentConfig.accentTheme = e.target.value;
+                    renderDashboard(currentConfig);
+                });
+            }
+
+            const settingClock12h = document.getElementById('setting-clock-12h');
+            if (settingClock12h) {
+                settingClock12h.addEventListener('change', (e) => {
+                    currentConfig.clock12h = e.target.checked;
+                    renderDashboard(currentConfig);
+                });
+            }
+
+            const settingShowDate = document.getElementById('setting-show-date');
+            if (settingShowDate) {
+                settingShowDate.addEventListener('change', (e) => {
+                    currentConfig.showDate = e.target.checked;
+                    renderDashboard(currentConfig);
+                });
+            }
+
+            const settingShowGreeting = document.getElementById('setting-show-greeting');
+            if (settingShowGreeting) {
+                settingShowGreeting.addEventListener('change', (e) => {
+                    currentConfig.showGreeting = e.target.checked;
+                    renderDashboard(currentConfig);
+                });
+            }
+
+            // Branding & Static Text Event Listeners
+            ['setting-workspace-title', 'setting-workspace-badge', 'setting-footer-status', 'setting-footer-tag'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('input', () => {
+                        currentConfig.nodeName = document.getElementById('setting-workspace-title')?.value || "My Workspace";
+                        currentConfig.nodeBadge = document.getElementById('setting-workspace-badge')?.value || "Workspace";
+                        currentConfig.footerStatus = document.getElementById('setting-footer-status')?.value || "Workspace Ready";
+                        currentConfig.footerTag = document.getElementById('setting-footer-tag')?.value || "v3.0";
+                        renderDashboard(currentConfig);
+                        populateJsonEditor();
+                    });
+                }
+            });
+
+            const settingDim = document.getElementById('setting-dim');
+            const dimVal = document.getElementById('dim-val');
+            if (settingDim) {
+                settingDim.addEventListener('input', (e) => {
+                    const val = e.target.value;
+                    if (dimVal) dimVal.textContent = `${val}%`;
+                    currentConfig.dimAmount = parseInt(val, 10);
+                    if (bgOverlay) bgOverlay.style.backgroundColor = `rgba(9, 13, 22, ${val / 100})`;
+                    saveState();
+                });
+            }
+
+            const settingBlur = document.getElementById('setting-blur');
+            const blurVal = document.getElementById('blur-val');
+            if (settingBlur) {
+                settingBlur.addEventListener('input', (e) => {
+                    const val = e.target.value;
+                    if (blurVal) blurVal.textContent = `${val}px`;
+                    currentConfig.blurAmount = parseInt(val, 10);
+                    if (bgContainer) bgContainer.style.filter = `blur(${val}px)`;
+                    saveState();
+                });
+            }
+
+            // Tab Switching in Settings
+            const tabBtnAppearance = document.getElementById('tab-btn-appearance');
+            const tabBtnBuilder = document.getElementById('tab-btn-builder');
+            const tabContentAppearance = document.getElementById('tab-content-appearance');
+            const tabContentBuilder = document.getElementById('tab-content-builder');
+
+            if (tabBtnAppearance && tabBtnBuilder) {
+                tabBtnAppearance.onclick = () => {
+                    tabBtnAppearance.className = "flex-1 py-2 rounded-full text-xs font-semibold bg-sky-400 text-slate-950 transition-all";
+                    tabBtnBuilder.className = "flex-1 py-2 rounded-full text-xs font-semibold text-white/70 hover:text-white transition-all";
+                    tabContentAppearance.classList.remove('hidden');
+                    tabContentBuilder.classList.add('hidden');
+                };
+
+                tabBtnBuilder.onclick = () => {
+                    tabBtnBuilder.className = "flex-1 py-2 rounded-full text-xs font-semibold bg-sky-400 text-slate-950 transition-all";
+                    tabBtnAppearance.className = "flex-1 py-2 rounded-full text-xs font-semibold text-white/70 hover:text-white transition-all";
+                    tabContentBuilder.classList.remove('hidden');
+                    tabContentAppearance.classList.add('hidden');
+                };
+            }
+
+            // INITIAL RENDER
+            renderDashboard(currentConfig);
+            populateJsonEditor();
+
+            // Clock Loop
+            const clockTime = document.getElementById('clock-time');
+            const clockDate = document.getElementById('clock-date');
+            const clockGreeting = document.getElementById('clock-greeting');
+            const clockDot = document.getElementById('clock-dot');
+
+            function updateClock() {
+                const now = new Date();
+                let hours = now.getHours();
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                
+                if (currentConfig.clock12h) {
+                    const ampm = hours >= 12 ? 'PM' : 'AM';
+                    hours = hours % 12 || 12;
+                    if (clockTime) clockTime.textContent = `${hours}:${minutes} ${ampm}`;
+                } else {
+                    const formattedHours = String(hours).padStart(2, '0');
+                    if (clockTime) clockTime.textContent = `${formattedHours}:${minutes}`;
+                }
+
+                if (clockDate) {
+                    if (currentConfig.showDate !== false) {
+                        const options = { weekday: 'long', month: 'long', day: 'numeric' };
+                        clockDate.textContent = now.toLocaleDateString('en-US', options);
+                        clockDate.style.display = 'inline';
+                    } else {
+                        clockDate.style.display = 'none';
+                    }
+                }
+
+                if (clockGreeting) {
+                    if (currentConfig.showGreeting !== false) {
+                        const h = now.getHours();
+                        if (h < 12) clockGreeting.textContent = 'Good Morning';
+                        else if (h < 18) clockGreeting.textContent = 'Good Afternoon';
+                        else clockGreeting.textContent = 'Good Evening';
+                        clockGreeting.style.display = 'inline';
+                    } else {
+                        clockGreeting.style.display = 'none';
+                    }
+                }
+
+                if (clockDot) {
+                    clockDot.style.display = (currentConfig.showDate !== false && currentConfig.showGreeting !== false) ? 'inline' : 'none';
+                }
+            }
+
+            setInterval(updateClock, 1000);
+            updateClock();
+
+            const nexusToggleBtn = document.getElementById('nexus-toggle-btn');
+            const nexusBtnText = document.getElementById('nexus-btn-text');
+            const nexusHoverZone = document.getElementById('nexus-hover-zone');
+            const nexusDrawer = document.getElementById('nexus-drawer');
+            const nexusOverlay = document.getElementById('nexus-overlay');
+            const nexusSearchInput = document.getElementById('nexus-search-input');
+            const nexusSearchClear = document.getElementById('nexus-search-clear');
+            
+            let isNexusOpen = false;
+            let isPinned = false;
+            let hoverTimeout = null;
+
+            function openNexusMenu() {
+                clearTimeout(hoverTimeout);
+                isNexusOpen = true;
+                if (nexusDrawer) {
+                    nexusDrawer.classList.remove('-translate-x-full');
+                    nexusDrawer.classList.add('translate-x-0');
+                }
+                if (nexusOverlay) {
+                    nexusOverlay.classList.remove('opacity-0', 'pointer-events-none');
+                    nexusOverlay.classList.add('opacity-100');
+                }
+                if (nexusBtnText) nexusBtnText.textContent = 'Close';
+            }
+
+            function closeNexusMenu() {
+                if (isPinned) return;
+                isNexusOpen = false;
+                if (nexusDrawer) {
+                    nexusDrawer.classList.add('-translate-x-full');
+                    nexusDrawer.classList.remove('translate-x-0');
+                }
+                if (nexusOverlay) {
+                    nexusOverlay.classList.remove('opacity-100');
+                    nexusOverlay.classList.add('opacity-0', 'pointer-events-none');
+                }
+                if (nexusBtnText) nexusBtnText.textContent = 'Menu';
+            }
+
+            function scheduleCloseNexusMenu() {
+                if (isPinned) return;
+                hoverTimeout = setTimeout(() => {
+                    closeNexusMenu();
+                }, 300);
+            }
+
+            [nexusToggleBtn, nexusHoverZone, nexusDrawer].forEach(el => {
+                if (!el) return;
+                el.addEventListener('mouseenter', openNexusMenu);
+                el.addEventListener('mouseleave', scheduleCloseNexusMenu);
+            });
+
+            if (nexusToggleBtn) {
+                nexusToggleBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (isPinned) {
+                        isPinned = false;
+                        closeNexusMenu();
+                    } else {
+                        isPinned = true;
+                        openNexusMenu();
+                    }
+                });
+            }
+
+            if (nexusOverlay) {
+                nexusOverlay.addEventListener('click', () => {
+                    isPinned = false;
+                    closeNexusMenu();
+                });
+            }
+
+            if (nexusSearchInput) {
+                nexusSearchInput.addEventListener('input', (e) => {
+                    const query = e.target.value.toLowerCase().trim();
+                    if (nexusSearchClear) nexusSearchClear.classList.toggle('hidden', query === '');
+
+                    document.querySelectorAll('#nexus-nav-list .m3-pill-item, #nexus-nav-list a, #nexus-nav-list button').forEach(el => {
+                        const text = el.textContent.toLowerCase();
+                        if (text.includes(query)) {
+                            el.style.display = '';
+                        } else {
+                            el.style.display = 'none';
+                        }
+                    });
+
+                    if (query.length > 0) {
+                        document.querySelectorAll('.nexus-submenu').forEach(sub => sub.classList.add('open'));
+                    }
+                });
+            }
+
+            if (nexusSearchClear) {
+                nexusSearchClear.addEventListener('click', () => {
+                    nexusSearchInput.value = '';
+                    nexusSearchInput.dispatchEvent(new Event('input'));
+                });
+            }
+
+            window.openModal = function(modalId) {
+                isPinned = false;
+                closeNexusMenu();
+                const modal = document.getElementById(modalId);
+                if (!modal) return;
+                const card = modal.querySelector('div');
+
+                if (modalId === 'modal-json') {
+                    populateJsonEditor();
+                }
+
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                modal.classList.add('opacity-100');
+                if (card) {
+                    card.classList.remove('scale-95');
+                    card.classList.add('scale-100');
+                }
+
+                if (modalId === 'modal-cmd') {
+                    setTimeout(() => {
+                        const cmdInput = document.getElementById('cmd-input');
+                        if (cmdInput) cmdInput.focus();
+                    }, 100);
+                }
+            };
+
+            window.closeModal = function(modalId) {
+                const modal = document.getElementById(modalId);
+                if (!modal) return;
+                const card = modal.querySelector('div');
+
+                modal.classList.remove('opacity-100');
+                modal.classList.add('opacity-0', 'pointer-events-none');
+                if (card) {
+                    card.classList.remove('scale-100');
+                    card.classList.add('scale-95');
+                }
+            };
+
+            document.querySelectorAll('.modal-close-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const target = btn.getAttribute('data-target');
+                    if (target) closeModal(target);
+                });
+            });
+
+            ['modal-services', 'modal-telemetry', 'modal-cmd', 'modal-settings', 'modal-json'].forEach(id => {
+                const m = document.getElementById(id);
+                if (m) {
+                    m.addEventListener('click', (e) => {
+                        if (e.target === m) closeModal(id);
+                    });
+                }
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                    e.preventDefault();
+                    const cmdModal = document.getElementById('modal-cmd');
+                    if (cmdModal && cmdModal.classList.contains('opacity-100')) closeModal('modal-cmd');
+                    else openModal('modal-cmd');
+                }
+                if (e.key === 'Escape') {
+                    ['modal-services', 'modal-telemetry', 'modal-cmd', 'modal-settings', 'modal-json'].forEach(id => closeModal(id));
+                    isPinned = false;
+                    closeNexusMenu();
+                }
+            });
+
+            // Simulated Telemetry Metrics Loop
+            setInterval(() => {
+                const cpu = Math.floor(18 + Math.random() * 8);
+                const ram = Math.floor(40 + Math.random() * 4);
+                
+                const valCpu = document.getElementById('val-cpu');
+                const barCpu = document.getElementById('bar-cpu');
+                const valRam = document.getElementById('val-ram');
+                const barRam = document.getElementById('bar-ram');
+
+                if (valCpu && barCpu) {
+                    valCpu.textContent = `${cpu}%`;
+                    barCpu.style.width = `${cpu}%`;
+                }
+
+                if (valRam && barRam) {
+                    valRam.textContent = `${ram}%`;
+                    barRam.style.width = `${ram}%`;
+                }
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
