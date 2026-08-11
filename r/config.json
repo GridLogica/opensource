@@ -1,0 +1,100 @@
+{
+  "dashboardTitle": "Homelab Dashboard",
+  "dashboardSubtitle": "All systems operational",
+  "showBranding": true,
+  "useGnomePanel": false,
+  "favPanelEnabled": true,
+  "favTriggerMode": "hover",
+  "favPanelPosition": "left",
+  "sections": [
+    {
+      "id": "sec-infra",
+      "name": "Infrastructure & Servers",
+      "icon": "fa-server",
+      "isFavorite": true
+    },
+    {
+      "id": "sec-smarthome",
+      "name": "Smart Home & Automation",
+      "icon": "fa-house-signal",
+      "isFavorite": false
+    },
+    {
+      "id": "sec-media",
+      "name": "Media & Entertainment",
+      "icon": "fa-film",
+      "isFavorite": false
+    }
+  ],
+  "apps": [
+    {
+      "id": "1",
+      "sectionId": "sec-infra",
+      "name": "Proxmox VE",
+      "url": "https://192.168.1.100:8006",
+      "icon": "fa-server",
+      "desc": "Hypervisor Node",
+      "color": "from-orange-600 to-red-600",
+      "isFavorite": true
+    },
+    {
+      "id": "2",
+      "sectionId": "sec-smarthome",
+      "name": "Home Assistant",
+      "url": "http://192.168.1.10:8123",
+      "icon": "fa-house-signal",
+      "desc": "Smart Home Hub",
+      "color": "from-blue-500 to-indigo-600",
+      "isFavorite": true
+    },
+    {
+      "id": "3",
+      "sectionId": "sec-infra",
+      "name": "Portainer",
+      "url": "http://192.168.1.10:9000",
+      "icon": "fa-docker",
+      "desc": "Container Manager",
+      "color": "from-blue-600 to-blue-800",
+      "isFavorite": false
+    },
+    {
+      "id": "4",
+      "sectionId": "sec-infra",
+      "name": "Pi-hole",
+      "url": "http://192.168.1.5/admin",
+      "icon": "fa-shield-halved",
+      "desc": "DNS Network Shield",
+      "color": "from-emerald-500 to-teal-700",
+      "isFavorite": false
+    },
+    {
+      "id": "5",
+      "sectionId": "sec-media",
+      "name": "Plex Media",
+      "url": "http://192.168.1.10:32400",
+      "icon": "fa-film",
+      "desc": "Media Server",
+      "color": "from-amber-500 to-orange-600",
+      "isFavorite": false
+    },
+    {
+      "id": "6",
+      "sectionId": "sec-media",
+      "name": "Grafana",
+      "url": "http://192.168.1.10:3000",
+      "icon": "fa-chart-area",
+      "desc": "Metrics & Charts",
+      "color": "from-slate-600 to-slate-800",
+      "isFavorite": false
+    }
+  ],
+  "pinEnabled": false,
+  "pinCode": "",
+  "pinHash": "",
+  "wallpaper": "default",
+  "customWallpaperUrl": "",
+  "showIcons": true,
+  "showStats": true,
+  "fontFamily": "inter",
+  "clockPosition": "bottom-right"
+}

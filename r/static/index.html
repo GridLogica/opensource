@@ -1,0 +1,2264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Homelab Dashboard</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Premium Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cantarell:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Lexend:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Config & Custom Styles -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cantarell: ['Cantarell', 'sans-serif'],
+                        inter: ['Inter', 'sans-serif'],
+                        outfit: ['Outfit', 'sans-serif'],
+                        jakarta: ['Plus Jakarta Sans', 'sans-serif'],
+                        lexend: ['Lexend', 'sans-serif'],
+                    },
+                    colors: {
+                        gnome: {
+                            dark: '#1e1e1e',
+                            light: '#f6f5f4',
+                            blue: '#3584e4',
+                            green: '#2ec27e',
+                            red: '#e01b24',
+                            yellow: '#f6d32d',
+                            orange: '#ff7800',
+                            purple: '#9141ac',
+                        }
+                    },
+                    transitionTimingFunction: {
+                        'spring': 'cubic-bezier(0.25, 1, 0.5, 1)',
+                        'apple': 'cubic-bezier(0.23, 1, 0.32, 1)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --glass-bg: rgba(20, 20, 25, 0.45);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow: hidden;
+            background-color: #000;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            border-top: 1px solid rgba(255,255,255,0.2);
+            border-left: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .glass-pill {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-top: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .bg-gnome-default {
+            background-color: #0f172a;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(220,100%,20%,1) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, hsla(280,100%,20%,1) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, hsla(180,100%,20%,1) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, hsla(240,100%,20%,1) 0px, transparent 50%);
+        }
+
+        .bg-gnome-aurora {
+            background-color: #0a0a0a;
+            background-image: 
+                radial-gradient(at 20% 0%, hsla(253,50%,30%,1) 0px, transparent 50%),
+                radial-gradient(at 80% 0%, hsla(200,60%,30%,1) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, hsla(330,50%,30%,1) 0px, transparent 50%);
+            animation: pulse-bg 15s ease-in-out infinite alternate;
+        }
+
+        .bg-gnome-emerald {
+            background-color: #022c22;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(160,100%,20%,1) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, hsla(120,100%,15%,1) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, hsla(180,100%,15%,1) 0px, transparent 50%);
+        }
+
+        .bg-gnome-sunset {
+            background-color: #450a0a;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(15,100%,40%,1) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, hsla(45,100%,40%,1) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, hsla(330,100%,30%,1) 0px, transparent 50%);
+        }
+
+        @keyframes pulse-bg {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
+
+        .overlay-hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.98);
+        }
+        .overlay-visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1);
+        }
+
+        .desktop-blur {
+            transition: filter 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .is-blurred {
+            filter: blur(12px) brightness(0.7);
+            transform: scale(1.02);
+        }
+
+        /* Clock Text Shadow for Ultimate Legibility */
+        .clock-shadow {
+            text-shadow: 0 4px 24px rgba(0,0,0,0.6), 0 1px 3px rgba(0,0,0,0.8);
+        }
+
+        .app-icon-glow {
+            box-shadow: 0 8px 24px -6px currentColor;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+    </style>
+</head>
+<body id="body-root" class="bg-gnome-default font-inter text-slate-200 h-screen w-screen overflow-hidden transition-colors duration-1000 select-none flex flex-col relative">
+
+    <!-- Custom Wallpaper Layer -->
+    <div id="custom-wallpaper-bg" class="absolute inset-0 bg-cover bg-center bg-no-repeat hidden transition-opacity duration-1000 z-0 opacity-80"></div>
+
+    <!-- Main Desktop Container (Will blur when search opens) -->
+    <div id="desktop-environment" class="absolute inset-0 flex flex-col z-10 desktop-blur transition-all duration-700 ease-apple">
+        
+        <header id="top-header" class="relative w-full h-14 px-4 sm:px-6 flex items-center justify-between text-xs font-medium tracking-wide z-20 mt-2 transition-all duration-300">
+            <!-- Left Slot -->
+            <div id="header-left" class="flex items-center gap-3">
+                <button id="activities-btn" onclick="toggleSearchOverlay(true)" class="glass-pill flex items-center gap-2.5 px-4 py-2.5 rounded-full hover:bg-white/20 active:bg-white/30 text-white transition-all duration-300 group cursor-pointer shadow-sm border border-white/10 hover:border-white/30">
+                    <i class="fa-solid fa-magnifying-glass text-xs text-blue-400 group-hover:scale-110 group-hover:text-white transition-all"></i>
+                    <span class="font-bold tracking-wide">Search</span>
+                    <kbd class="hidden sm:inline-block ml-1 px-1.5 py-0.5 rounded bg-black/30 border border-white/10 text-[9px] text-slate-300">⌘K</kbd>
+                </button>
+                
+                <!-- Favourites Header Button -->
+                <button id="fav-header-btn" onclick="toggleFavDrawer()" class="glass-pill flex items-center gap-2 px-3.5 py-2.5 rounded-full hover:bg-amber-500/20 text-amber-300 hover:text-amber-200 transition-all duration-300 cursor-pointer border border-amber-400/20 hover:border-amber-400/40 shadow-sm" title="Favourites Side Panel (Ctrl+F)">
+                    <i class="fa-solid fa-star text-xs text-amber-400"></i>
+                    <span class="font-bold text-white text-xs hidden sm:inline tracking-wide">Favourites</span>
+                    <span id="fav-header-count" class="px-1.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 text-[10px] font-semibold">0</span>
+                </button>
+
+                <!-- Branding Header -->
+                <div id="dash-info-card" class="hidden sm:flex items-center gap-2.5 px-4 py-2 rounded-full glass-pill text-xs transition-all duration-300 cursor-pointer hover:bg-white/20 border border-transparent hover:border-white/10 shadow-sm" onclick="openSettingsTab('apps')">
+                    <span id="dash-title-display" class="font-bold text-white drop-shadow-sm">Homelab Dashboard</span>
+                    <span id="dash-divider" class="text-white/30">|</span>
+                    <span id="dash-subtitle-display" class="text-slate-300 text-[11px] max-w-[200px] truncate">All systems operational</span>
+                </div>
+
+                <!-- Manual Lock Button (Visible only if PIN is enabled) -->
+                <button id="manual-lock-btn" onclick="lockScreen()" class="hidden w-10 h-10 rounded-full glass-pill items-center justify-center text-white hover:bg-red-500/80 hover:border-red-400 hover:text-white transition-all cursor-pointer shadow-sm border border-white/10" title="Lock Screen (Super + L)">
+                    <i class="fa-solid fa-lock text-sm"></i>
+                </button>
+
+                <!-- Unlock button shown when locked -->
+                <button id="top-unlock-btn" onclick="promptPinEntry()" class="hidden items-center gap-2 px-4 py-2.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white transition-all duration-300 shadow-[0_0_15px_rgba(59,130,246,0.5)] cursor-pointer border border-blue-400/50 hover:scale-105 active:scale-95">
+                    <i class="fa-solid fa-lock-open text-xs"></i>
+                    <span class="font-bold">Unlock</span>
+                </button>
+            </div>
+
+            <!-- Center Slot (GNOME Panel Clock) -->
+            <div id="header-center" class="flex items-center justify-center">
+                <button id="panel-clock-btn" onclick="toggleTimeFormat()" class="hidden items-center gap-2 px-3.5 py-1.5 rounded-full hover:bg-white/10 text-white font-medium text-xs transition-all cursor-pointer border border-transparent hover:border-white/10">
+                    <i class="fa-regular fa-clock text-blue-400 text-xs"></i>
+                    <span id="panel-clock-text" class="font-bold tracking-tight">--:--</span>
+                </button>
+            </div>
+
+            <!-- Right Slot -->
+            <div id="header-right" class="flex items-center gap-3"></div>
+        </header>
+
+        <main class="relative flex-1 w-full p-8 sm:p-16 flex flex-col justify-between pointer-events-none z-10">
+            
+            <!-- Lock Screen Banner -->
+            <div id="locked-banner" class="hidden pointer-events-auto self-center text-center my-auto glass-panel p-10 rounded-[2rem] max-w-sm space-y-5">
+                <div class="w-16 h-16 rounded-2xl bg-blue-500/20 border border-blue-400/30 text-blue-400 flex items-center justify-center mx-auto text-3xl shadow-[0_0_30px_rgba(59,130,246,0.3)]">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-white tracking-tight">System Locked</h2>
+                    <p class="text-xs text-slate-400 mt-1">Authentication required to access dashboard.</p>
+                </div>
+                <button onclick="promptPinEntry()" class="w-full py-3.5 px-5 rounded-xl bg-white text-black hover:bg-slate-200 active:scale-95 text-sm font-bold shadow-xl transition-all duration-300 cursor-pointer flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-fingerprint"></i> Authenticate
+                </button>
+            </div>
+
+            <div class="pointer-events-auto transition-all duration-700 ease-apple self-end text-right mt-auto" id="clock-wrapper">
+                <button onclick="toggleTimeFormat()" class="group focus:outline-none flex flex-col items-end cursor-default">
+                    <div id="clock-time-box" class="flex items-baseline gap-2">
+                        <span id="main-clock" class="text-[5rem] sm:text-[7rem] md:text-[9rem] font-bold text-white leading-none tracking-tighter clock-shadow transition-all duration-300 group-hover:scale-[1.02]">
+                            --:--
+                        </span>
+                        <span id="clock-period" class="text-2xl sm:text-3xl font-semibold text-white/80 clock-shadow mb-2 sm:mb-4"></span>
+                    </div>
+                    <div id="clock-date-box" class="mt-2 text-lg sm:text-2xl font-medium tracking-wide text-white/90 clock-shadow flex items-center gap-2">
+                        <span id="main-date">Loading date...</span>
+                    </div>
+                </button>
+                
+                <!-- System Telemetry Stats Widget -->
+                <div id="system-stats-box" class="mt-4 flex items-center justify-end gap-4 text-xs font-medium text-white/60 clock-shadow opacity-80 transition-all duration-300 hover:opacity-100 cursor-default">
+                    <span class="flex items-center gap-1.5" title="Host CPU Usage"><i class="fa-solid fa-microchip text-white/40"></i> <span id="stat-cpu">--%</span></span>
+                    <span>&bull;</span>
+                    <span class="flex items-center gap-1.5" title="Host RAM Usage"><i class="fa-solid fa-memory text-white/40"></i> <span id="stat-ram">--%</span></span>
+                    <span>&bull;</span>
+                    <span class="flex items-center gap-1.5" title="Network Activity"><i class="fa-solid fa-network-wired text-white/40"></i> <span id="stat-net">-- Mbps</span></span>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <div id="search-overlay" class="fixed inset-0 z-50 overlay-hidden transition-all duration-500 ease-apple bg-black/60 backdrop-blur-2xl flex flex-col" onclick="handleSearchBackdropClick(event)">
+        
+        <div class="w-full max-w-4xl mx-auto h-full flex flex-col p-4 sm:p-8" id="search-content-wrapper">
+            
+            <!-- Top Controls in Overlay -->
+            <div class="flex justify-between items-center mb-8 shrink-0">
+                <div class="text-white/50 text-xs font-semibold tracking-widest uppercase">Spotlight Search</div>
+                <div class="flex items-center gap-3">
+                    <button onclick="openSettingsTab('apps')" class="w-10 h-10 rounded-full glass-pill flex items-center justify-center text-white hover:bg-white/20 hover:scale-110 active:scale-95 transition-all">
+                        <i class="fa-solid fa-sliders text-sm"></i>
+                    </button>
+                    <button onclick="toggleSearchOverlay(false)" class="w-10 h-10 rounded-full glass-pill flex items-center justify-center text-white hover:bg-red-500/80 hover:border-red-400 hover:scale-110 active:scale-95 transition-all">
+                        <i class="fa-solid fa-xmark text-sm"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Massive Search Bar -->
+            <div class="relative w-full shrink-0 group">
+                <i class="fa-solid fa-magnifying-glass absolute left-6 top-1/2 -translate-y-1/2 text-2xl text-white/40 group-focus-within:text-blue-400 transition-colors"></i>
+                <input type="text" id="search-input" placeholder="Search apps, perform math, or browse..." autocomplete="off" class="w-full bg-white/10 border-2 border-white/10 rounded-3xl py-6 pl-16 pr-16 text-2xl sm:text-3xl text-white placeholder-white/30 focus:outline-none focus:bg-white/15 focus:border-blue-500/50 shadow-2xl transition-all duration-300 font-medium">
+                <button id="clear-search-btn" onclick="clearSearch()" class="hidden absolute right-6 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all cursor-pointer">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <!-- Scrollable Content Area -->
+            <div class="flex-1 overflow-y-auto mt-8 pb-10 space-y-8 pr-2" id="overlay-scroll-area">
+                
+                <!-- Math Calculator Card -->
+                <div id="calc-result-card" class="hidden glass-panel rounded-3xl p-6 flex items-center justify-between shadow-2xl transform transition-all">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-2xl shadow-lg">
+                            <i class="fa-solid fa-calculator"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-white/60 mb-1 tracking-wide" id="calc-expression"></p>
+                            <h3 class="text-3xl sm:text-4xl font-bold text-white tracking-tight" id="calc-value"></h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Search Results -->
+                <div id="filtered-results-container" class="hidden space-y-6"></div>
+
+                <!-- Default Pinned Apps Grid -->
+                <div id="default-apps-section" class="space-y-10">
+                    <div id="homelab-apps-grid" class="space-y-10">
+                        <!-- JS renders apps here -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="pin-lock-overlay" class="fixed inset-0 z-[100] opacity-0 pointer-events-none transition-all duration-400 ease-apple bg-black/70 backdrop-blur-3xl flex items-center justify-center p-4" onclick="handlePinBackdropClick(event)">
+        <div class="glass-panel p-8 sm:p-10 rounded-[2.5rem] w-full max-w-sm flex flex-col items-center shadow-2xl transform transition-transform duration-500 scale-95" id="pin-modal-content">
+            <div class="w-16 h-16 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-3xl mb-4 border border-blue-400/30">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <h2 class="text-xl font-bold text-white mb-1 tracking-tight">Enter PIN</h2>
+            <p id="pin-prompt-text" class="text-sm text-slate-400 mb-8">Unlock your dashboard</p>
+
+            <div class="flex gap-4 mb-10 h-4" id="pin-dots">
+                <div class="w-3.5 h-3.5 rounded-full border-2 border-white/20 transition-all duration-300"></div>
+                <div class="w-3.5 h-3.5 rounded-full border-2 border-white/20 transition-all duration-300"></div>
+                <div class="w-3.5 h-3.5 rounded-full border-2 border-white/20 transition-all duration-300"></div>
+                <div class="w-3.5 h-3.5 rounded-full border-2 border-white/20 transition-all duration-300"></div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-4 sm:gap-5 w-full max-w-[260px]">
+                <button onclick="pressPinDigit('1')" class="w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-white/5 hover:bg-white/15 active:bg-white/25 text-2xl font-medium text-white transition-all cursor-pointer flex items-center justify-center mx-auto">1</button>
+                <button onclick="pressPinDigit('2')" class="w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-white/5 hover:bg-white/15 active:bg-white/25 text-2xl font-medium text-white transition-all cursor-pointer flex items-center justify-center mx-auto">2</button>
+                <button onclick="pressPinDigit('3')" class="w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-white/5 hover:bg-white/15 active:bg-white/25 text-2xl font-medium text-white transition-all cursor-pointer flex items-center justify-center mx-auto">3</button>
+                <button onclick="pressPinDigit('4')" class="w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-white/5 hover:bg-white/15 active:bg-white/25 text-2xl font-medium text-white transition-all cursor-pointer flex items-center justify-center mx-auto">4</button>
+                <button onclick="pressPinDigit('5')" class="w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-white/5 hover:bg-white/15 active:bg-white/25 text-2xl font-medium text-white transition-all cursor-pointer flex items-center justify-center mx-auto">5</button>
+                <button onclick="pressPinDigit('6')" class="w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-white/5 hover:bg-white/15 active:bg-white/25 text-2xl font-medium text-white transition-all cursor-pointer flex items-center justify-center mx-auto">6</button>
+                <button onclick="pressPinDigit('7')" class="w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-white/5 hover:bg-white/15 active:bg-white/25 text-2xl font-medium text-white transition-all cursor-pointer flex items-center justify-center mx-auto">7</button>
+                <button onclick="pressPinDigit('8')" class="w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-white/5 hover:bg-white/15 active:bg-white/25 text-2xl font-medium text-white transition-all cursor-pointer flex items-center justify-center mx-auto">8</button>
+                <button onclick="pressPinDigit('9')" class="w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-white/5 hover:bg-white/15 active:bg-white/25 text-2xl font-medium text-white transition-all cursor-pointer flex items-center justify-center mx-auto">9</button>
+                <button onclick="cancelPinPrompt()" class="w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-red-500/10 hover:bg-red-500/20 active:bg-red-500/30 text-xl font-medium text-red-400 transition-all cursor-pointer flex items-center justify-center mx-auto"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="pressPinDigit('0')" class="w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-white/5 hover:bg-white/15 active:bg-white/25 text-2xl font-medium text-white transition-all cursor-pointer flex items-center justify-center mx-auto">0</button>
+                <button onclick="backspacePin()" class="w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-white/5 hover:bg-white/15 active:bg-white/25 text-xl font-medium text-white transition-all cursor-pointer flex items-center justify-center mx-auto"><i class="fa-solid fa-delete-left"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="settings-control-center" class="fixed inset-0 z-[60] hidden bg-black/40 backdrop-blur-md flex items-center justify-center p-2 sm:p-6 transition-all" onclick="handleSettingsBackdropClick(event)">
+        <div class="glass-panel w-full max-w-5xl h-[95vh] sm:h-[85vh] rounded-[2rem] shadow-2xl flex flex-col md:flex-row overflow-hidden relative" id="settings-modal-content">
+            
+            <!-- Sidebar -->
+            <div class="w-full md:w-72 bg-black/30 border-r border-white/10 p-6 flex flex-col shrink-0">
+                <div class="flex items-center justify-between mb-8">
+                    <h2 class="text-lg font-bold text-white tracking-tight">System Settings</h2>
+                </div>
+                
+                <nav class="flex md:flex-col gap-2 overflow-x-auto md:overflow-visible pb-2 md:pb-0 hide-scrollbar">
+                    <button id="tab-btn-apps" onclick="switchSettingsTab('apps')" class="tab-btn active-tab flex items-center gap-3 px-4 py-3 rounded-xl bg-white/10 text-white font-medium text-sm transition-all text-left whitespace-nowrap md:whitespace-normal">
+                        <i class="fa-solid fa-layer-group w-5 text-center"></i> Services & Apps
+                    </button>
+                    <button id="tab-btn-appearance" onclick="switchSettingsTab('appearance')" class="tab-btn flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white font-medium text-sm transition-all text-left whitespace-nowrap md:whitespace-normal">
+                        <i class="fa-solid fa-display w-5 text-center"></i> Appearance
+                    </button>
+                    <button id="tab-btn-security" onclick="switchSettingsTab('security')" class="tab-btn flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white font-medium text-sm transition-all text-left whitespace-nowrap md:whitespace-normal">
+                        <i class="fa-solid fa-shield-halved w-5 text-center"></i> Security & Lock
+                    </button>
+                    <button id="tab-btn-backup" onclick="switchSettingsTab('backup')" class="tab-btn flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white font-medium text-sm transition-all text-left whitespace-nowrap md:whitespace-normal">
+                        <i class="fa-solid fa-cloud-arrow-up w-5 text-center"></i> Data & Backup
+                    </button>
+                </nav>
+
+                <div class="mt-auto hidden md:block pt-6 border-t border-white/10">
+                    <p class="text-[10px] text-slate-500 font-medium">GridLogic Systems</p>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="flex-1 overflow-y-auto p-6 sm:p-10 relative">
+                <div class="absolute top-6 right-6 flex items-center gap-2 z-10">
+                    <button onclick="saveAndCloseSettings()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-bold shadow-md transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-floppy-disk"></i> <span class="hidden sm:inline">Save</span>
+                    </button>
+                    <button onclick="closeSettingsModal()" class="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+
+                <!-- TAB: APPS -->
+                <div id="settings-tab-apps" class="tab-content space-y-8 mt-4 sm:mt-0">
+                    <div>
+                        <h1 class="text-2xl font-bold text-white tracking-tight mb-2">Services & Apps</h1>
+                        <p class="text-sm text-slate-400">Organize your homelab applications into custom categories.</p>
+                    </div>
+
+                    <!-- Dashboard Branding Section -->
+                    <div class="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-4">
+                        <div class="flex items-center justify-between border-b border-white/10 pb-4">
+                            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-pen-to-square text-blue-400"></i> Header Branding
+                            </h3>
+                            <div class="flex items-center gap-3">
+                                <span class="text-xs text-slate-400 font-medium">Show Badge</span>
+                                <button id="toggle-branding-btn" onclick="toggleBrandingHeader()" class="w-12 h-6 rounded-full bg-white/10 relative transition-colors cursor-pointer border border-white/20">
+                                    <div id="toggle-branding-dot" class="w-5 h-5 rounded-full bg-white absolute top-0.5 left-0.5 transition-transform shadow-md"></div>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1.5">Title</label>
+                                <input type="text" id="setting-dash-title" onchange="updateDashboardBranding()" placeholder="Homelab Dashboard" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 focus:bg-black/50 transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1.5">Subtitle</label>
+                                <input type="text" id="setting-dash-subtitle" onchange="updateDashboardBranding()" placeholder="All systems operational" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 focus:bg-black/50 transition-all">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-4">
+                        <h3 class="text-lg font-bold text-white">App Layout</h3>
+                        <div class="flex items-center gap-2">
+                            <button onclick="openSectionModal()" class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-sm font-medium transition-all shadow-sm">
+                                <i class="fa-solid fa-folder-plus mr-1.5 text-amber-400"></i> New Section
+                            </button>
+                            <button onclick="openAppEditModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-medium transition-all shadow-md">
+                                <i class="fa-solid fa-plus mr-1.5"></i> Add Service
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="settings-apps-list" class="space-y-6"></div>
+                </div>
+
+                <!-- TAB: APPEARANCE -->
+                <div id="settings-tab-appearance" class="tab-content hidden space-y-8">
+                    <div>
+                        <h1 class="text-2xl font-bold text-white tracking-tight mb-2">Appearance</h1>
+                        <p class="text-sm text-slate-400">Customize the look and feel of your environment.</p>
+                    </div>
+
+                    <!-- GNOME Top Panel Toggle -->
+                    <div class="p-6 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-bold text-white">GNOME Shell Top Panel Bar</h3>
+                            <p class="text-xs text-slate-400 mt-1">Full top bar panel with search on far-left, and branding, clock, and lock on the right.</p>
+                        </div>
+                        <button id="toggle-panel-btn" onclick="toggleGnomePanelMode()" class="w-12 h-6 rounded-full bg-white/10 relative transition-colors cursor-pointer border border-white/20">
+                            <div id="toggle-panel-dot" class="w-5 h-5 rounded-full bg-white absolute top-0.5 left-0.5 transition-transform shadow-md"></div>
+                        </button>
+                    </div>
+
+                    <!-- Wallpaper Options -->
+                    <div class="space-y-4">
+                        <h3 class="text-sm font-bold text-white">Backdrop Theme</h3>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                            <button onclick="setTheme('default')" class="h-24 rounded-2xl bg-gnome-default border-2 border-transparent focus:border-white hover:scale-105 transition-all shadow-md"></button>
+                            <button onclick="setTheme('aurora')" class="h-24 rounded-2xl bg-gnome-aurora border-2 border-transparent focus:border-white hover:scale-105 transition-all shadow-md"></button>
+                            <button onclick="setTheme('emerald')" class="h-24 rounded-2xl bg-gnome-emerald border-2 border-transparent focus:border-white hover:scale-105 transition-all shadow-md"></button>
+                            <button onclick="setTheme('sunset')" class="h-24 rounded-2xl bg-gnome-sunset border-2 border-transparent focus:border-white hover:scale-105 transition-all shadow-md"></button>
+                        </div>
+                        <div class="space-y-3 pt-2">
+                            <label class="block text-xs font-medium text-slate-300">Custom Wallpaper (URL or Local File)</label>
+                            <div class="flex flex-wrap sm:flex-nowrap gap-2">
+                                <input type="text" id="custom-bg-url" placeholder="Paste custom image URL (e.g., Unsplash)" class="flex-1 min-w-[200px] bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 transition-all">
+                                <button onclick="applyCustomWallpaper()" class="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-sm font-medium transition-all shrink-0">Apply URL</button>
+                                <label class="px-4 py-2.5 bg-blue-600/80 hover:bg-blue-600 text-white rounded-xl text-sm font-medium transition-all shrink-0 cursor-pointer flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-upload text-xs"></i> Upload File
+                                    <input type="file" id="bg-file-upload" accept="image/*" onchange="handleWallpaperFileUpload(event)" class="hidden">
+                                </label>
+                                <button onclick="clearCustomWallpaper()" class="px-4 py-2.5 bg-red-500/20 hover:bg-red-500/30 text-red-300 rounded-xl text-sm font-medium transition-all shrink-0 flex items-center gap-1.5"><i class="fa-solid fa-trash-can text-xs"></i> Delete Image</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- UI Customizations -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4">
+                        <div class="p-6 rounded-2xl bg-white/5 border border-white/10">
+                            <h3 class="text-sm font-bold text-white mb-4">Typography</h3>
+                            <select id="setting-font-select" onchange="changeFontFamily(this.value)" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 appearance-none">
+                                <option value="inter">Inter (Modern Default)</option>
+                                <option value="cantarell">Cantarell (GNOME Classic)</option>
+                                <option value="outfit">Outfit (Geometric)</option>
+                                <option value="jakarta">Plus Jakarta Sans</option>
+                                <option value="lexend">Lexend (Highly Legible)</option>
+                            </select>
+                        </div>
+
+                        <div class="p-6 rounded-2xl bg-white/5 border border-white/10">
+                            <h3 class="text-sm font-bold text-white mb-4">Clock Layout</h3>
+                            <select id="setting-clock-pos" onchange="setClockPosition(this.value)" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 appearance-none">
+                                <option value="bottom-right">Bottom Right</option>
+                                <option value="bottom-left">Bottom Left</option>
+                                <option value="bottom-center">Bottom Center</option>
+                                <option value="center">Dead Center</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="p-6 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-bold text-white">Display Application Icons</h3>
+                            <p class="text-xs text-slate-400 mt-1">Turn off to use minimalist text-only tiles.</p>
+                        </div>
+                        <button id="toggle-icons-btn" onclick="toggleAppIconsDisplay()" class="w-12 h-6 rounded-full bg-white/10 relative transition-colors cursor-pointer border border-white/20">
+                            <div id="toggle-icons-dot" class="w-5 h-5 rounded-full bg-white absolute top-0.5 left-0.5 transition-transform shadow-md"></div>
+                        </button>
+                    </div>
+
+                    <div class="p-6 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-bold text-white">Display System Telemetry</h3>
+                            <p class="text-xs text-slate-400 mt-1">Show real host CPU, RAM, and Network stats below the clock.</p>
+                        </div>
+                        <button id="toggle-stats-btn" onclick="toggleStatsDisplay()" class="w-12 h-6 rounded-full bg-white/10 relative transition-colors cursor-pointer border border-white/20">
+                            <div id="toggle-stats-dot" class="w-5 h-5 rounded-full bg-white absolute top-0.5 left-0.5 transition-transform shadow-md"></div>
+                        </button>
+                    </div>
+
+                    <!-- Favourites Side Panel Settings -->
+                    <div class="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-4">
+                        <div class="flex items-center justify-between border-b border-white/10 pb-4">
+                            <div>
+                                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-star text-amber-400"></i> Favourites Side Panel
+                                </h3>
+                                <p class="text-xs text-slate-400 mt-1">Slide-in drawer for quick access to starred sections and links/apps.</p>
+                            </div>
+                            <button id="toggle-favpanel-btn" onclick="toggleFavPanelSetting()" class="w-12 h-6 rounded-full bg-white/10 relative transition-colors cursor-pointer border border-white/20">
+                                <div id="toggle-favpanel-dot" class="w-5 h-5 rounded-full bg-white absolute top-0.5 left-0.5 transition-transform shadow-md"></div>
+                            </button>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 mb-1.5">Open Trigger Mode</label>
+                                <select id="setting-fav-triggermode" onchange="changeFavTriggerMode(this.value)" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 appearance-none">
+                                    <option value="hover">Hover (Mouseover side tab / edge)</option>
+                                    <option value="click">Click (Click side tab or header button)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 mb-1.5">Panel Edge Position</label>
+                                <select id="setting-fav-position" onchange="changeFavPanelPosition(this.value)" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 appearance-none">
+                                    <option value="left">Left Edge</option>
+                                    <option value="right">Right Edge</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: SECURITY -->
+                <div id="settings-tab-security" class="tab-content hidden space-y-8">
+                    <div>
+                        <h1 class="text-2xl font-bold text-white tracking-tight mb-2">Security</h1>
+                        <p class="text-sm text-slate-400">Manage dashboard lock and authentication.</p>
+                    </div>
+
+                    <div class="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-base font-bold text-white">Enable Screen Lock</h3>
+                                <p class="text-xs text-slate-400 mt-1">Require a PIN to access the dashboard and settings.</p>
+                            </div>
+                            <button id="toggle-pin-btn" onclick="togglePinProtection()" class="w-12 h-6 rounded-full bg-white/10 relative transition-colors cursor-pointer border border-white/20 shrink-0">
+                                <div id="toggle-pin-dot" class="w-5 h-5 rounded-full bg-white absolute top-0.5 left-0.5 transition-transform shadow-md"></div>
+                            </button>
+                        </div>
+
+                        <div class="pt-6 border-t border-white/10">
+                            <label class="block text-sm font-medium text-slate-300 mb-2">Update Security PIN</label>
+                            <div class="flex gap-3">
+                                <input type="password" id="new-pin-input" placeholder="4-6 digit code" maxlength="6" class="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 tracking-[0.5em] font-mono">
+                                <button onclick="saveNewPin()" class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-medium transition-all shadow-md">Save</button>
+                            </div>
+                            <p id="pin-save-msg" class="text-xs mt-2 text-transparent select-none">.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: BACKUP -->
+                <div id="settings-tab-backup" class="tab-content hidden space-y-8">
+                    <div>
+                        <h1 class="text-2xl font-bold text-white tracking-tight mb-2">Data & Backup</h1>
+                        <p class="text-sm text-slate-400">Export or import your complete configuration.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="p-6 rounded-2xl bg-white/5 border border-white/10 text-center space-y-4 hover:bg-white/10 transition-colors">
+                            <div class="w-14 h-14 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center mx-auto text-2xl border border-blue-400/30">
+                                <i class="fa-solid fa-download"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-white">Export Configuration</h3>
+                                <p class="text-xs text-slate-400 mt-1">Save your apps, theme, and layout to a JSON file.</p>
+                            </div>
+                            <button onclick="exportConfig()" class="w-full py-2.5 bg-white/10 hover:bg-white/20 rounded-xl text-sm font-medium text-white transition-all">Download .json</button>
+                        </div>
+
+                        <div class="p-6 rounded-2xl bg-white/5 border border-white/10 text-center space-y-4 hover:bg-white/10 transition-colors relative">
+                            <div class="w-14 h-14 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto text-2xl border border-amber-400/30">
+                                <i class="fa-solid fa-upload"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-white">Import Configuration</h3>
+                                <p class="text-xs text-slate-400 mt-1">Restore your dashboard from a previous JSON backup.</p>
+                            </div>
+                            <input type="file" id="import-file" accept=".json" onchange="importConfig(event)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                            <button class="w-full py-2.5 bg-white/10 hover:bg-white/20 rounded-xl text-sm font-medium text-white transition-all pointer-events-none">Select File</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="app-editor-modal" class="fixed inset-0 z-[70] hidden bg-black/60 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-panel p-8 rounded-3xl w-full max-w-md shadow-2xl border border-white/20">
+            <h2 id="app-editor-title" class="text-xl font-bold text-white mb-6 tracking-tight">Edit Service</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1.5">Section</label>
+                    <select id="edit-app-section" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 appearance-none"></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1.5">Service Name *</label>
+                    <input type="text" id="edit-app-name" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1.5">URL *</label>
+                    <input type="text" id="edit-app-url" placeholder="https://" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">Icon (FontAwesome)</label>
+                        <input type="text" id="edit-app-icon" placeholder="fa-server" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">Color Gradient</label>
+                        <select id="edit-app-color" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 appearance-none">
+                            <option value="from-blue-500 to-blue-700">Blue</option>
+                            <option value="from-emerald-500 to-emerald-700">Emerald</option>
+                            <option value="from-orange-500 to-red-600">Sunset</option>
+                            <option value="from-purple-500 to-indigo-700">Purple</option>
+                            <option value="from-slate-600 to-slate-800">Slate</option>
+                            <option value="from-pink-500 to-rose-600">Rose</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1.5">Short Description</label>
+                    <input type="text" id="edit-app-desc" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
+                </div>
+            </div>
+            <div class="flex justify-end gap-3 mt-8">
+                <button onclick="closeAppEditModal()" class="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-sm font-medium text-white transition-all">Cancel</button>
+                <button onclick="saveAppFromModal()" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-sm font-medium text-white shadow-md transition-all">Save Service</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="section-editor-modal" class="fixed inset-0 z-[70] hidden bg-black/60 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-panel p-8 rounded-3xl w-full max-w-sm shadow-2xl border border-white/20">
+            <h2 id="section-editor-title" class="text-xl font-bold text-white mb-6 tracking-tight">Edit Section</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1.5">Section Name *</label>
+                    <input type="text" id="edit-section-name" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1.5">Icon (FontAwesome)</label>
+                    <input type="text" id="edit-section-icon" placeholder="fa-folder" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
+                </div>
+            </div>
+            <div class="flex justify-end gap-3 mt-8">
+                <button onclick="closeSectionModal()" class="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-sm font-medium text-white transition-all">Cancel</button>
+                <button onclick="saveSectionFromModal()" class="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-sm font-medium text-white shadow-md transition-all">Save Section</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edge Trigger Handle for Favourites Side Panel -->
+    <div id="fav-drawer-trigger-area" class="fixed left-0 top-1/2 -translate-y-1/2 z-[75] group flex items-center pointer-events-auto" onmouseenter="handleFavTriggerHover()" onmouseleave="handleFavTriggerLeave()">
+        <button id="fav-drawer-trigger-btn" onclick="toggleFavDrawer()" class="h-28 w-9 rounded-r-2xl glass-panel bg-slate-900/80 backdrop-blur-xl border-l-0 border border-amber-400/30 text-amber-400 hover:text-amber-300 hover:w-11 hover:bg-slate-800 transition-all duration-300 flex flex-col items-center justify-center gap-2 shadow-[0_0_20px_rgba(245,158,11,0.2)] cursor-pointer" title="Open Favourites Side Panel">
+            <i class="fa-solid fa-star text-sm transition-transform group-hover:scale-125"></i>
+            <span class="text-[9px] font-bold tracking-widest uppercase text-amber-200/80 [writing-mode:vertical-lr] rotate-180">FAVOURITES</span>
+        </button>
+    </div>
+
+    <!-- Slide-in Favourites Side Drawer -->
+    <div id="fav-slide-drawer" class="fixed top-0 bottom-0 left-0 w-80 sm:w-96 z-[80] -translate-x-full transition-transform duration-500 ease-apple glass-panel bg-slate-950/95 backdrop-blur-2xl border-r border-white/15 flex flex-col shadow-[0_0_60px_rgba(0,0,0,0.8)]" onmouseenter="handleFavDrawerMouseEnter()" onmouseleave="handleFavDrawerMouseLeave()">
+        <!-- Drawer Header -->
+        <div class="p-5 border-b border-white/10 flex items-center justify-between shrink-0 bg-white/5">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-amber-400/20 border border-amber-400/30 text-amber-400 flex items-center justify-center shadow-[0_0_15px_rgba(245,158,11,0.3)]">
+                    <i class="fa-solid fa-star text-base"></i>
+                </div>
+                <div>
+                    <h2 class="text-base font-bold text-white tracking-tight flex items-center gap-2">
+                        Favourites
+                        <span id="fav-drawer-total-count" class="px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 text-[11px] font-semibold">0</span>
+                    </h2>
+                    <p class="text-[11px] text-slate-400">Quick access panel</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+                <!-- Trigger mode switch button -->
+                <button id="fav-mode-switch-btn" onclick="toggleFavTriggerMode()" class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-[11px] font-medium text-slate-300 hover:text-white transition-all flex items-center gap-1.5 cursor-pointer" title="Toggle Trigger Mode: Hover vs Click">
+                    <i id="fav-mode-icon" class="fa-solid fa-hand-pointer text-xs text-amber-400"></i>
+                    <span id="fav-mode-label">Hover</span>
+                </button>
+
+                <!-- Pin drawer button -->
+                <button id="fav-pin-drawer-btn" onclick="toggleFavDrawerPinned()" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-all flex items-center justify-center text-xs cursor-pointer" title="Pin panel open">
+                    <i id="fav-pin-icon" class="fa-solid fa-thumbtack text-xs"></i>
+                </button>
+
+                <!-- Close drawer button -->
+                <button onclick="toggleFavDrawer(false)" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-red-500/80 hover:text-white text-slate-300 transition-all flex items-center justify-center text-xs cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Filter Input inside Drawer -->
+        <div class="p-4 border-b border-white/5 shrink-0">
+            <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-xs text-white/40"></i>
+                <input type="text" id="fav-drawer-search" oninput="renderFavDrawer()" placeholder="Filter favourites..." class="w-full bg-black/40 border border-white/10 rounded-xl py-2 pl-9 pr-3 text-xs text-white placeholder-white/40 focus:outline-none focus:border-amber-400/50 transition-all">
+            </div>
+        </div>
+
+        <!-- Scrollable Favourites Content Area -->
+        <div id="fav-drawer-content" class="flex-1 overflow-y-auto p-4 space-y-6">
+            <!-- Dynamically populated via renderFavDrawer() -->
+        </div>
+
+        <!-- Drawer Footer -->
+        <div class="p-4 border-t border-white/10 bg-white/5 text-xs text-slate-400 flex items-center justify-between shrink-0">
+            <span class="text-[11px] text-slate-400 flex items-center gap-1">
+                <i class="fa-solid fa-circle-info text-amber-400 text-[10px]"></i>
+                Star items to pin here
+            </span>
+            <button onclick="openSettingsTab('appearance')" class="text-[11px] font-semibold text-amber-300 hover:text-amber-200 transition-colors cursor-pointer">
+                Configure Panel
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] flex flex-col gap-2 items-center pointer-events-none"></div>
+
+    <script>
+        let is24Hour = false;
+        let isSearchOpen = false;
+        let isLocked = false;
+        let currentPinInput = '';
+        let editingAppId = null;
+        let editingSectionId = null;
+
+        const defaultSections = [
+            { id: 'sec-infra', name: 'Infrastructure & Servers', icon: 'fa-server', isFavorite: true },
+            { id: 'sec-smarthome', name: 'Smart Home & Automation', icon: 'fa-house-signal', isFavorite: false },
+            { id: 'sec-media', name: 'Media & Entertainment', icon: 'fa-film', isFavorite: false }
+        ];
+
+        const defaultHomelabApps = [
+            { id: '1', sectionId: 'sec-infra', name: 'Proxmox VE', url: 'https://192.168.1.100:8006', icon: 'fa-server', desc: 'Hypervisor Node', color: 'from-orange-600 to-red-600', isFavorite: true },
+            { id: '2', sectionId: 'sec-smarthome', name: 'Home Assistant', url: 'http://192.168.1.10:8123', icon: 'fa-house-signal', desc: 'Smart Home Hub', color: 'from-blue-500 to-indigo-600', isFavorite: true },
+            { id: '3', sectionId: 'sec-infra', name: 'Portainer', url: 'http://192.168.1.10:9000', icon: 'fa-docker', desc: 'Container Manager', color: 'from-blue-600 to-blue-800', isFavorite: false },
+            { id: '4', sectionId: 'sec-infra', name: 'Pi-hole', url: 'http://192.168.1.5/admin', icon: 'fa-shield-halved', desc: 'DNS Network Shield', color: 'from-emerald-500 to-teal-700', isFavorite: false },
+            { id: '5', sectionId: 'sec-media', name: 'Plex Media', url: 'http://192.168.1.10:32400', icon: 'fa-film', desc: 'Media Server', color: 'from-amber-500 to-orange-600', isFavorite: false },
+            { id: '6', sectionId: 'sec-media', name: 'Grafana', url: 'http://192.168.1.10:3000', icon: 'fa-chart-area', desc: 'Metrics & Charts', color: 'from-slate-600 to-slate-800', isFavorite: false }
+        ];
+
+        window.state = {
+            dashboardTitle: 'Homelab Dashboard',
+            dashboardSubtitle: 'All systems operational',
+            showBranding: true,
+            useGnomePanel: false,
+            favPanelEnabled: true,
+            favTriggerMode: 'hover',
+            favPanelPosition: 'left',
+            sections: defaultSections,
+            apps: defaultHomelabApps,
+            pinEnabled: false,
+            pinCode: '',
+            wallpaper: 'default',
+            customWallpaperUrl: '',
+            showIcons: true,
+            showStats: true,
+            fontFamily: 'inter',
+            clockPosition: 'bottom-right'
+        };
+
+        function migrateState() {
+            if (window.state.showBranding === undefined) window.state.showBranding = true;
+            if (window.state.useGnomePanel === undefined) window.state.useGnomePanel = false;
+            if (window.state.favPanelEnabled === undefined) window.state.favPanelEnabled = true;
+            if (!window.state.favTriggerMode) window.state.favTriggerMode = 'hover';
+            if (!window.state.favPanelPosition) window.state.favPanelPosition = 'left';
+            if (window.state.showIcons === undefined) window.state.showIcons = true;
+            if (window.state.showStats === undefined) window.state.showStats = true;
+            if (!window.state.fontFamily) window.state.fontFamily = 'inter';
+            if (!window.state.clockPosition) window.state.clockPosition = 'bottom-right';
+            if (!window.state.sections || window.state.sections.length === 0) window.state.sections = defaultSections;
+            (window.state.sections || []).forEach(s => { if (s.isFavorite === undefined) s.isFavorite = false; });
+            (window.state.apps || []).forEach(a => { if (a.isFavorite === undefined) a.isFavorite = false; });
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = `px-5 py-3 rounded-2xl glass-pill text-sm font-medium text-white flex items-center gap-3 shadow-2xl transition-all duration-300 transform translate-y-4 opacity-0 ${type === 'error' ? 'border-red-500/40 bg-red-950/90' : ''}`;
+            toast.innerHTML = `<i class="fa-solid ${type === 'error' ? 'fa-circle-exclamation text-red-400' : 'fa-circle-check text-emerald-400'} text-lg"></i> ${message}`;
+            container.appendChild(toast);
+            
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-4', 'opacity-0');
+            });
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'scale-95');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        async function loadLocalState() {
+            try {
+                const res = await fetch('/api/v1/config');
+                if (res.ok) {
+                    const serverConfig = await res.json();
+                    window.state = { ...window.state, ...serverConfig };
+                }
+            } catch (e) {
+                console.warn("Could not load config from FastAPI backend:", e);
+            }
+            migrateState();
+            applySettingsState();
+            renderAppsGrid();
+        }
+
+        window.saveState = async function() {
+            migrateState();
+            renderAppsGrid();
+            renderSettingsAppsList();
+            renderFavDrawer();
+            updateFavHeaderUI();
+            updateBrandingUI();
+
+            try {
+                await fetch('/api/v1/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(window.state)
+                });
+            } catch (e) {
+                console.warn("Could not save state to /api/v1/config:", e);
+            }
+        }
+
+        function toggleBrandingHeader() {
+            window.state.showBranding = !window.state.showBranding;
+            window.saveState();
+            updateBrandingUI();
+        }
+
+        function updateBrandingToggleUI() {
+            const dot = document.getElementById('toggle-branding-dot');
+            const bg = document.getElementById('toggle-branding-btn');
+            if (!dot || !bg) return;
+            if (window.state.showBranding) {
+                dot.style.transform = 'translateX(28px)';
+                bg.classList.add('bg-blue-600', 'border-blue-500');
+            } else {
+                dot.style.transform = 'translateX(0px)';
+                bg.classList.remove('bg-blue-600', 'border-blue-500');
+            }
+        }
+
+        function updateBrandingUI() {
+            const cardEl = document.getElementById('dash-info-card');
+            const titleEl = document.getElementById('dash-title-display');
+            const subEl = document.getElementById('dash-subtitle-display');
+            
+            const hasTitle = Boolean(window.state.dashboardTitle?.trim());
+            const hasSub = Boolean(window.state.dashboardSubtitle?.trim());
+            const isBrandingVisible = window.state.showBranding && (hasTitle || hasSub);
+
+            if (cardEl) {
+                if (isBrandingVisible) {
+                    cardEl.classList.remove('hidden');
+                    cardEl.classList.add('hidden', 'sm:flex');
+                } else {
+                    cardEl.classList.add('hidden');
+                    cardEl.classList.remove('sm:flex');
+                }
+            }
+            if (titleEl) { titleEl.textContent = window.state.dashboardTitle; titleEl.style.display = hasTitle ? 'inline' : 'none'; }
+            if (subEl) { subEl.textContent = window.state.dashboardSubtitle; subEl.style.display = hasSub ? 'inline' : 'none'; }
+            updateBrandingToggleUI();
+        }
+
+        function updateDashboardBranding() {
+            const titleIn = document.getElementById('setting-dash-title');
+            const subIn = document.getElementById('setting-dash-subtitle');
+            if (titleIn) window.state.dashboardTitle = titleIn.value;
+            if (subIn) window.state.dashboardSubtitle = subIn.value;
+            window.saveState();
+        }
+
+        function toggleTimeFormat() {
+            is24Hour = !is24Hour;
+            updateClock();
+        }
+
+        function toggleSearchOverlay(show) {
+            if (isLocked) return promptPinEntry();
+            isSearchOpen = show;
+            const overlay = document.getElementById('search-overlay');
+            const input = document.getElementById('search-input');
+            
+            if (show) {
+                overlay.classList.remove('overlay-hidden');
+                overlay.classList.add('overlay-visible');
+                document.getElementById('desktop-environment')?.classList.add('is-blurred');
+                setTimeout(() => input?.focus(), 100);
+            } else {
+                overlay.classList.remove('overlay-visible');
+                overlay.classList.add('overlay-hidden');
+                document.getElementById('desktop-environment')?.classList.remove('is-blurred');
+                clearSearch();
+            }
+        }
+
+        function handleSearchBackdropClick(e) {
+            if (e.target.id === 'search-overlay') {
+                toggleSearchOverlay(false);
+            }
+        }
+
+        function handlePinBackdropClick(e) {
+            if (e.target.id === 'pin-lock-overlay') {
+                cancelPinPrompt();
+            }
+        }
+
+        function handleSettingsBackdropClick(e) {
+            if (e.target.id === 'settings-control-center') {
+                closeSettingsModal();
+            }
+        }
+
+        function toggleGnomePanelMode() {
+            window.state.useGnomePanel = !window.state.useGnomePanel;
+            window.saveState();
+            applyPanelLayout();
+            showToast(window.state.useGnomePanel ? 'GNOME Top Panel enabled' : 'Standard floating layout restored');
+        }
+
+        function updatePanelToggleUI() {
+            const dot = document.getElementById('toggle-panel-dot');
+            const bg = document.getElementById('toggle-panel-btn');
+            if (!dot || !bg) return;
+            if (window.state.useGnomePanel) {
+                dot.style.transform = 'translateX(28px)';
+                bg.classList.add('bg-blue-600', 'border-blue-500');
+            } else {
+                dot.style.transform = 'translateX(0px)';
+                bg.classList.remove('bg-blue-600', 'border-blue-500');
+            }
+        }
+
+        function applyPanelLayout() {
+            const isPanel = Boolean(window.state.useGnomePanel);
+            const header = document.getElementById('top-header');
+            const hLeft = document.getElementById('header-left');
+            const hCenter = document.getElementById('header-center');
+            const hRight = document.getElementById('header-right');
+            const clockTimeBox = document.getElementById('clock-time-box');
+            const clockDateBox = document.getElementById('clock-date-box');
+            const panelClockBtn = document.getElementById('panel-clock-btn');
+            
+            const activitiesBtn = document.getElementById('activities-btn');
+            const favHeaderBtn = document.getElementById('fav-header-btn');
+            const brandingCard = document.getElementById('dash-info-card');
+            const lockBtn = document.getElementById('manual-lock-btn');
+            const unlockBtn = document.getElementById('top-unlock-btn');
+
+            if (!header || !hLeft || !hCenter || !hRight) return;
+
+            if (isPanel) {
+                header.className = "w-full h-11 px-4 sm:px-6 bg-black/60 backdrop-blur-2xl border-b border-white/10 flex items-center justify-between text-xs font-medium tracking-wide z-20 transition-all duration-300 shadow-md mt-0";
+                
+                if (activitiesBtn) hLeft.appendChild(activitiesBtn);
+                if (favHeaderBtn) hLeft.appendChild(favHeaderBtn);
+                if (brandingCard) hRight.appendChild(brandingCard);
+                if (panelClockBtn) {
+                    panelClockBtn.classList.remove('hidden');
+                    panelClockBtn.classList.add('flex');
+                    hRight.appendChild(panelClockBtn);
+                }
+                if (lockBtn) hRight.appendChild(lockBtn);
+                if (unlockBtn) hRight.appendChild(unlockBtn);
+
+                if (clockTimeBox) clockTimeBox.classList.add('hidden');
+                if (clockDateBox) clockDateBox.classList.add('hidden');
+            } else {
+                header.className = "relative w-full h-14 px-4 sm:px-6 flex items-center justify-between text-xs font-medium tracking-wide z-20 mt-2 transition-all duration-300";
+                
+                if (activitiesBtn) hLeft.appendChild(activitiesBtn);
+                if (favHeaderBtn) hLeft.appendChild(favHeaderBtn);
+                if (brandingCard) hLeft.appendChild(brandingCard);
+                if (lockBtn) hLeft.appendChild(lockBtn);
+                if (unlockBtn) hLeft.appendChild(unlockBtn);
+
+                if (panelClockBtn) {
+                    panelClockBtn.classList.add('hidden');
+                    panelClockBtn.classList.remove('flex');
+                    hCenter.appendChild(panelClockBtn);
+                }
+
+                if (clockTimeBox) clockTimeBox.classList.remove('hidden');
+                if (clockDateBox) clockDateBox.classList.remove('hidden');
+            }
+
+            updatePanelToggleUI();
+        }
+
+        window.applySettingsState = function() {
+            migrateState();
+            
+            const theme = window.state.wallpaper || 'default';
+            const body = document.getElementById('body-root');
+            if (body) {
+                body.className = body.className.replace(/bg-gnome-\w+/g, '');
+                body.classList.add(`bg-gnome-${theme}`);
+            }
+
+            if (window.state.customWallpaperUrl) {
+                applyCustomWallpaper(window.state.customWallpaperUrl, false);
+            } else {
+                clearCustomWallpaper(false);
+            }
+
+            changeFontFamily(window.state.fontFamily || 'inter', false);
+            setClockPosition(window.state.clockPosition || 'bottom-right', false);
+            applyPanelLayout();
+            applyDrawerPositioning();
+            
+            const titleIn = document.getElementById('setting-dash-title');
+            const subIn = document.getElementById('setting-dash-subtitle');
+            if (titleIn) titleIn.value = window.state.dashboardTitle || '';
+            if (subIn) subIn.value = window.state.dashboardSubtitle || '';
+            
+            updatePinUI();
+            updateIconsToggleUI();
+            updateStatsToggleUI();
+            updateBrandingUI();
+            updateFavPanelToggleUI();
+            updateFavModeUI();
+            renderFavDrawer();
+            updateFavHeaderUI();
+        }
+
+        function changeFontFamily(fontKey, triggerSave = true) {
+            window.state.fontFamily = fontKey;
+            const body = document.getElementById('body-root');
+            if (body) {
+                body.className = body.className.replace(/font-\w+/g, '');
+                body.classList.add(`font-${fontKey}`);
+            }
+            const select = document.getElementById('setting-font-select');
+            if (select) select.value = fontKey;
+            if (triggerSave) window.saveState();
+        }
+
+        function setClockPosition(pos, triggerSave = true) {
+            window.state.clockPosition = pos;
+            const wrapper = document.getElementById('clock-wrapper');
+            const timeBox = document.getElementById('clock-time-box');
+            const dateBox = document.getElementById('clock-date-box');
+            const statsBox = document.getElementById('system-stats-box');
+            
+            const statsVisibleClass = window.state.showStats ? 'flex' : 'hidden';
+
+            if (!wrapper || !timeBox || !dateBox) return;
+            wrapper.className = 'pointer-events-auto transition-all duration-700 ease-apple';
+            
+            if (pos === 'bottom-center') {
+                wrapper.classList.add('self-center', 'text-center', 'mt-auto');
+                timeBox.className = 'flex items-baseline justify-center gap-2';
+                dateBox.className = 'mt-2 text-lg sm:text-2xl font-medium tracking-wide text-white/90 clock-shadow flex items-center justify-center gap-2';
+                if(statsBox) statsBox.className = `mt-4 ${statsVisibleClass} items-center justify-center gap-4 text-xs font-medium text-white/60 clock-shadow opacity-80 transition-all duration-300 hover:opacity-100 cursor-default`;
+            } else if (pos === 'bottom-left') {
+                wrapper.classList.add('self-start', 'text-left', 'mt-auto');
+                timeBox.className = 'flex items-baseline justify-start gap-2';
+                dateBox.className = 'mt-2 text-lg sm:text-2xl font-medium tracking-wide text-white/90 clock-shadow flex items-center justify-start gap-2';
+                if(statsBox) statsBox.className = `mt-4 ${statsVisibleClass} items-center justify-start gap-4 text-xs font-medium text-white/60 clock-shadow opacity-80 transition-all duration-300 hover:opacity-100 cursor-default`;
+            } else if (pos === 'center') {
+                wrapper.classList.add('self-center', 'text-center', 'my-auto');
+                timeBox.className = 'flex items-baseline justify-center gap-2';
+                dateBox.className = 'mt-2 text-lg sm:text-2xl font-medium tracking-wide text-white/90 clock-shadow flex items-center justify-center gap-2';
+                if(statsBox) statsBox.className = `mt-4 ${statsVisibleClass} items-center justify-center gap-4 text-xs font-medium text-white/60 clock-shadow opacity-80 transition-all duration-300 hover:opacity-100 cursor-default`;
+            } else {
+                wrapper.classList.add('self-end', 'text-right', 'mt-auto');
+                timeBox.className = 'flex items-baseline justify-end gap-2';
+                dateBox.className = 'mt-2 text-lg sm:text-2xl font-medium tracking-wide text-white/90 clock-shadow flex items-center justify-end gap-2';
+                if(statsBox) statsBox.className = `mt-4 ${statsVisibleClass} items-center justify-end gap-4 text-xs font-medium text-white/60 clock-shadow opacity-80 transition-all duration-300 hover:opacity-100 cursor-default`;
+            }
+
+            const select = document.getElementById('setting-clock-pos');
+            if (select) select.value = pos;
+            if (triggerSave) window.saveState();
+        }
+
+        function toggleAppIconsDisplay() {
+            window.state.showIcons = !window.state.showIcons;
+            window.saveState();
+            updateIconsToggleUI();
+        }
+
+        function updateIconsToggleUI() {
+            const dot = document.getElementById('toggle-icons-dot');
+            const bg = document.getElementById('toggle-icons-btn');
+            if (!dot || !bg) return;
+            if (window.state.showIcons) {
+                dot.style.transform = 'translateX(28px)';
+                bg.classList.add('bg-blue-600', 'border-blue-500');
+            } else {
+                dot.style.transform = 'translateX(0px)';
+                bg.classList.remove('bg-blue-600', 'border-blue-500');
+            }
+        }
+
+        function toggleStatsDisplay() {
+            window.state.showStats = !window.state.showStats;
+            window.saveState();
+            setClockPosition(window.state.clockPosition, false);
+            updateStatsToggleUI();
+        }
+
+        function updateStatsToggleUI() {
+            const dot = document.getElementById('toggle-stats-dot');
+            const bg = document.getElementById('toggle-stats-btn');
+            if (!dot || !bg) return;
+            if (window.state.showStats) {
+                dot.style.transform = 'translateX(28px)';
+                bg.classList.add('bg-blue-600', 'border-blue-500');
+            } else {
+                dot.style.transform = 'translateX(0px)';
+                bg.classList.remove('bg-blue-600', 'border-blue-500');
+            }
+        }
+
+        window.renderAppsGrid = function() {
+            const grid = document.getElementById('homelab-apps-grid');
+            if (!grid) return;
+            let html = '';
+            const showIcons = window.state.showIcons !== false;
+
+            (window.state.sections || []).forEach(sec => {
+                const secApps = (window.state.apps || []).filter(a => a.sectionId === sec.id);
+                if(secApps.length === 0) return;
+
+                html += `
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between border-b border-white/10 pb-3 pl-2">
+                            <div class="flex items-center gap-3">
+                                <i class="${sec.icon} text-blue-400 text-sm"></i>
+                                <h3 class="text-sm font-bold text-white tracking-wide">${sec.name}</h3>
+                                <span class="px-2 py-0.5 rounded-full bg-white/10 text-[10px] text-white/60 font-semibold">${secApps.length}</span>
+                            </div>
+                            <button onclick="toggleSectionFavorite('${sec.id}', event)" class="px-2.5 py-1 rounded-full text-xs transition-all duration-300 flex items-center gap-1.5 cursor-pointer ${sec.isFavorite ? 'bg-amber-400/20 text-amber-300 border border-amber-400/30' : 'bg-white/5 hover:bg-white/15 text-white/40 hover:text-amber-300 border border-white/10'}" title="${sec.isFavorite ? 'Remove section from Favourites' : 'Add section to Favourites'}">
+                                <i class="${sec.isFavorite ? 'fa-solid' : 'fa-regular'} fa-star ${sec.isFavorite ? 'text-amber-400' : ''}"></i>
+                                <span class="text-[11px] font-medium hidden sm:inline">${sec.isFavorite ? 'Favorited' : 'Favorite'}</span>
+                            </button>
+                        </div>
+                `;
+
+                if (showIcons) {
+                    html += '<div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4 sm:gap-6 pt-2">';
+                    secApps.forEach(app => {
+                        html += `
+                            <div class="relative group">
+                                <button onclick="launchApp('${app.url}')" class="w-full flex flex-col items-center gap-3 p-4 rounded-3xl hover:bg-white/10 border border-transparent hover:border-white/10 transition-all duration-300 cursor-pointer focus:outline-none focus:bg-white/10 active:scale-95">
+                                    <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-br ${app.color} flex items-center justify-center text-white text-3xl shadow-lg app-icon-glow group-hover:scale-105 group-hover:shadow-2xl transition-all duration-300 relative">
+                                        <i class="${app.icon}"></i>
+                                        <div id="status-dot-${app.id}" class="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-black/40 bg-slate-500 shadow-sm transition-colors duration-500"></div>
+                                    </div>
+                                    <span class="text-sm font-medium text-slate-200 group-hover:text-white truncate w-full text-center tracking-tight">${app.name}</span>
+                                </button>
+                                <button onclick="toggleAppFavorite('${app.id}', event)" class="absolute top-2 right-2 w-7 h-7 rounded-full backdrop-blur-md transition-all duration-300 flex items-center justify-center border cursor-pointer ${app.isFavorite ? 'bg-amber-500/20 border-amber-400/40 text-amber-300 opacity-100' : 'bg-black/50 border-white/10 text-white/50 hover:text-amber-300 opacity-0 group-hover:opacity-100 hover:scale-110'}" title="${app.isFavorite ? 'Remove from Favourites' : 'Add to Favourites'}">
+                                    <i class="${app.isFavorite ? 'fa-solid' : 'fa-regular'} fa-star text-xs"></i>
+                                </button>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                } else {
+                    html += '<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-2">';
+                    secApps.forEach(app => {
+                        html += `
+                            <div class="flex items-center justify-between p-4 rounded-2xl glass-pill hover:bg-white/20 transition-all duration-300 group text-left">
+                                <div onclick="launchApp('${app.url}')" class="flex-1 truncate mr-3 flex items-center gap-3 cursor-pointer">
+                                    <div id="status-dot-list-${app.id}" class="w-2.5 h-2.5 rounded-full bg-slate-500 shrink-0 transition-colors duration-500 shadow-sm"></div>
+                                    <div>
+                                        <span class="block text-sm font-bold text-white tracking-tight">${app.name}</span>
+                                        ${app.desc ? `<span class="block text-xs text-slate-400 truncate mt-0.5">${app.desc}</span>` : ''}
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <button onclick="toggleAppFavorite('${app.id}', event)" class="w-8 h-8 rounded-full transition-colors flex items-center justify-center cursor-pointer ${app.isFavorite ? 'text-amber-400 bg-amber-400/20' : 'text-white/40 hover:text-amber-300 bg-white/5 hover:bg-white/20'}" title="${app.isFavorite ? 'Remove from Favourites' : 'Add to Favourites'}">
+                                        <i class="${app.isFavorite ? 'fa-solid' : 'fa-regular'} fa-star text-xs"></i>
+                                    </button>
+                                    <div onclick="launchApp('${app.url}')" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-colors cursor-pointer">
+                                        <i class="fa-solid fa-arrow-right text-[10px] text-white/50 group-hover:text-white transition-colors"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                }
+                html += '</div>';
+            });
+            grid.innerHTML = html;
+        }
+
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            let period = '';
+            if (!is24Hour) {
+                period = hours >= 12 ? 'PM' : 'AM';
+                hours = hours % 12 || 12;
+            } else {
+                hours = String(hours).padStart(2, '0');
+            }
+
+            const mc = document.getElementById('main-clock');
+            const cp = document.getElementById('clock-period');
+            const md = document.getElementById('main-date');
+            const pc = document.getElementById('panel-clock-text');
+            
+            if (mc) mc.textContent = `${hours}:${minutes}`;
+            if (cp) { cp.textContent = period; cp.style.display = is24Hour ? 'none' : 'inline'; }
+            if (md) md.textContent = now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+            
+            if (pc) {
+                const dateStr = now.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+                pc.textContent = is24Hour ? `${dateStr}  ${hours}:${minutes}` : `${dateStr}  ${hours}:${minutes} ${period}`;
+            }
+        }
+
+        function clearSearch() {
+            const input = document.getElementById('search-input');
+            if(input) input.value = '';
+            document.getElementById('clear-search-btn')?.classList.add('hidden');
+            document.getElementById('calc-result-card')?.classList.add('hidden');
+            document.getElementById('filtered-results-container')?.classList.add('hidden');
+            document.getElementById('default-apps-section')?.classList.remove('hidden');
+        }
+
+        function initSearchInputListener() {
+            const input = document.getElementById('search-input');
+            if (!input) return;
+            input.addEventListener('input', (e) => {
+                const query = e.target.value.trim();
+                const clearBtn = document.getElementById('clear-search-btn');
+                const calcCard = document.getElementById('calc-result-card');
+                const filterContainer = document.getElementById('filtered-results-container');
+                const defaultApps = document.getElementById('default-apps-section');
+
+                if (query.length > 0) clearBtn?.classList.remove('hidden');
+                else return clearSearch();
+
+                // Math Evaluator
+                if (/^[\d\s\+\-\*\/\(\)\.]+$/.test(query) && /[\+\-\*\/]/.test(query)) {
+                    try {
+                        const res = eval(query);
+                        if (!isNaN(res)) {
+                            document.getElementById('calc-expression').textContent = query;
+                            document.getElementById('calc-value').textContent = Number.isInteger(res) ? res : res.toFixed(3);
+                            calcCard?.classList.remove('hidden');
+                        }
+                    } catch (err) { calcCard?.classList.add('hidden'); }
+                } else { calcCard?.classList.add('hidden'); }
+
+                // App Search
+                const matched = (window.state.apps || []).filter(a => 
+                    a.name.toLowerCase().includes(query.toLowerCase()) || 
+                    (a.desc && a.desc.toLowerCase().includes(query.toLowerCase())) ||
+                    a.url.toLowerCase().includes(query.toLowerCase())
+                );
+
+                defaultApps?.classList.add('hidden');
+                filterContainer?.classList.remove('hidden');
+
+                let html = '<div class="text-white/50 text-xs font-semibold tracking-widest uppercase mb-4 px-2">Services</div>';
+                if (matched.length > 0) {
+                    html += '<div class="grid grid-cols-1 md:grid-cols-2 gap-4">';
+                    matched.forEach(app => {
+                        html += `
+                            <div class="p-4 rounded-2xl glass-pill hover:bg-white/20 transition-all flex items-center justify-between group">
+                                <div onclick="launchApp('${app.url}')" class="flex items-center gap-4 cursor-pointer flex-1 min-w-0">
+                                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br ${app.color} flex items-center justify-center text-white text-xl shadow-md shrink-0">
+                                        <i class="${app.icon}"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <h4 class="text-base font-bold text-white tracking-tight truncate">${app.name}</h4>
+                                        <p class="text-xs text-slate-400 mt-0.5 truncate max-w-[200px]">${app.url}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0 ml-3">
+                                    <button onclick="toggleAppFavorite('${app.id}', event)" class="w-8 h-8 rounded-full transition-colors flex items-center justify-center cursor-pointer ${app.isFavorite ? 'text-amber-400 bg-amber-400/20' : 'text-white/40 hover:text-amber-300 bg-white/5 hover:bg-white/20'}" title="${app.isFavorite ? 'Remove from Favourites' : 'Add to Favourites'}">
+                                        <i class="${app.isFavorite ? 'fa-solid' : 'fa-regular'} fa-star text-xs"></i>
+                                    </button>
+                                    <div onclick="launchApp('${app.url}')" class="w-8 h-8 rounded-full bg-white/5 group-hover:bg-white/20 flex items-center justify-center cursor-pointer">
+                                        <i class="fa-solid fa-arrow-up-right-from-square text-xs text-white/50 group-hover:text-white transition-colors"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                } else {
+                    html += `<p class="text-sm text-slate-400 px-2 py-4">No homelab services match "${query}".</p>`;
+                }
+
+                html += `
+                    <div class="pt-6 mt-6 border-t border-white/10">
+                        <a href="https://www.google.com/search?q=${encodeURIComponent(query)}" target="_blank" class="p-4 rounded-2xl bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 flex items-center justify-between group transition-all">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-all"><i class="fa-brands fa-google text-sm"></i></div>
+                                <span class="text-sm font-medium text-blue-100">Web Search for "<strong>${query}</strong>"</span>
+                            </div>
+                            <i class="fa-solid fa-arrow-right text-blue-400/50 group-hover:text-blue-300"></i>
+                        </a>
+                    </div>
+                `;
+                if(filterContainer) filterContainer.innerHTML = html;
+            });
+        }
+
+        // Lock & PIN Logic
+        function lockScreen() {
+            if (!window.state.pinEnabled) return openSettingsTab('security');
+            isLocked = true;
+            currentPinInput = '';
+            document.querySelector('header').classList.remove('z-20');
+            document.getElementById('activities-btn').classList.add('hidden');
+            document.getElementById('dash-info-card').classList.add('hidden');
+            document.getElementById('dash-info-card').classList.remove('sm:flex');
+            document.getElementById('manual-lock-btn')?.classList.add('hidden');
+            document.getElementById('manual-lock-btn')?.classList.remove('flex');
+            document.getElementById('top-unlock-btn').classList.remove('hidden');
+            document.getElementById('top-unlock-btn').classList.add('flex');
+            document.getElementById('locked-banner').classList.remove('hidden');
+            toggleSearchOverlay(false);
+            closeSettingsModal();
+        }
+
+        function promptPinEntry() {
+            currentPinInput = '';
+            updatePinDots();
+            const prompt = document.getElementById('pin-prompt-text');
+            if(prompt) { prompt.textContent = 'Unlock your dashboard'; prompt.className = 'text-sm text-slate-400 mb-8'; }
+            
+            const overlay = document.getElementById('pin-lock-overlay');
+            const modal = document.getElementById('pin-modal-content');
+            overlay.classList.remove('opacity-0', 'pointer-events-none');
+            modal.classList.remove('scale-95');
+        }
+
+        function cancelPinPrompt() {
+            const overlay = document.getElementById('pin-lock-overlay');
+            const modal = document.getElementById('pin-modal-content');
+            overlay.classList.add('opacity-0', 'pointer-events-none');
+            modal.classList.add('scale-95');
+        }
+
+        function updatePinDots() {
+            const dots = document.getElementById('pin-dots')?.children;
+            if (!dots) return;
+            for (let i = 0; i < dots.length; i++) {
+                if (i < currentPinInput.length) {
+                    dots[i].className = 'w-3.5 h-3.5 rounded-full bg-blue-500 border-2 border-blue-400 transition-all scale-125 shadow-[0_0_10px_rgba(59,130,246,0.8)]';
+                } else {
+                    dots[i].className = 'w-3.5 h-3.5 rounded-full border-2 border-white/20 transition-all scale-100';
+                }
+            }
+        }
+
+        async function pressPinDigit(digit) {
+            if (currentPinInput.length < 4) {
+                currentPinInput += digit;
+                updatePinDots();
+                if (currentPinInput.length === 4) {
+                    try {
+                        const res = await fetch('/api/v1/auth/verify-pin', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ pin: currentPinInput })
+                        });
+                        if (res.ok) {
+                            setTimeout(unlockScreen, 150);
+                        } else {
+                            handlePinFailure();
+                        }
+                    } catch (err) {
+                        const targetPin = window.state.pinCode || '1234';
+                        if (currentPinInput === targetPin) {
+                            setTimeout(unlockScreen, 150);
+                        } else {
+                            handlePinFailure();
+                        }
+                    }
+                }
+            }
+        }
+
+        function handlePinFailure() {
+            const prompt = document.getElementById('pin-prompt-text');
+            if (prompt) {
+                prompt.textContent = 'Incorrect PIN code';
+                prompt.className = 'text-sm text-red-400 font-bold mb-8 animate-pulse';
+            }
+            const modal = document.getElementById('pin-modal-content');
+            if (modal) modal.classList.add('animate-[shake_0.5s_ease-in-out]');
+            setTimeout(() => {
+                if (modal) modal.classList.remove('animate-[shake_0.5s_ease-in-out]');
+                clearPin();
+            }, 600);
+        }
+
+        function clearPin() {
+            currentPinInput = '';
+            updatePinDots();
+            const prompt = document.getElementById('pin-prompt-text');
+            if(prompt) { prompt.textContent = 'Unlock your dashboard'; prompt.className = 'text-sm text-slate-400 mb-8'; }
+        }
+
+        function backspacePin() {
+            if (currentPinInput.length > 0) {
+                currentPinInput = currentPinInput.slice(0, -1);
+                updatePinDots();
+            }
+        }
+
+        function unlockScreen() {
+            isLocked = false;
+            cancelPinPrompt();
+            document.querySelector('header').classList.add('z-20');
+            document.getElementById('activities-btn').classList.remove('hidden');
+            updateBrandingUI();
+            if (window.state.pinEnabled) {
+                document.getElementById('manual-lock-btn')?.classList.remove('hidden');
+                document.getElementById('manual-lock-btn')?.classList.add('flex');
+            }
+            document.getElementById('top-unlock-btn').classList.add('hidden');
+            document.getElementById('top-unlock-btn').classList.remove('flex');
+            document.getElementById('locked-banner').classList.add('hidden');
+        }
+
+        // Settings Logic
+        function openSettingsModal() {
+            if (isLocked) return promptPinEntry();
+            const sc = document.getElementById('settings-control-center');
+            sc.classList.remove('hidden');
+            sc.classList.add('flex');
+            renderSettingsAppsList();
+        }
+
+        function closeSettingsModal() {
+            const sc = document.getElementById('settings-control-center');
+            sc.classList.add('hidden');
+            sc.classList.remove('flex');
+        }
+
+        async function saveAndCloseSettings() {
+            await window.saveState();
+            showToast('Configuration saved successfully');
+            closeSettingsModal();
+        }
+
+        function switchSettingsTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active-tab', 'bg-white/10', 'text-white');
+                btn.classList.add('text-slate-400');
+            });
+            document.getElementById(`settings-tab-${tabName}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-400');
+                activeBtn.classList.add('active-tab', 'bg-white/10', 'text-white');
+            }
+        }
+
+        window.openSettingsTab = function(tabName) {
+            openSettingsModal();
+            switchSettingsTab(tabName);
+            if(isSearchOpen) toggleSearchOverlay(false);
+        }
+
+        window.renderSettingsAppsList = function() {
+            const list = document.getElementById('settings-apps-list');
+            if (!list) return;
+            let html = '';
+            (window.state.sections || []).forEach((sec, secIdx) => {
+                const secApps = (window.state.apps || []).filter(a => a.sectionId === sec.id);
+                html += `
+                    <div class="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-4 shadow-sm">
+                        <div class="flex items-center justify-between border-b border-white/10 pb-4">
+                            <div class="flex items-center gap-3">
+                                <i class="${sec.icon} text-amber-400 text-lg"></i>
+                                <h3 class="text-base font-bold text-white tracking-tight">${sec.name}</h3>
+                                <span class="px-2 py-0.5 rounded-full bg-white/10 text-xs text-white/50">${secApps.length}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="toggleSectionFavorite('${sec.id}', event)" class="w-8 h-8 rounded-lg transition-all flex items-center justify-center cursor-pointer ${sec.isFavorite ? 'bg-amber-400/20 text-amber-300 border border-amber-400/40' : 'bg-white/10 hover:bg-white/20 text-white/50 hover:text-amber-300'}" title="${sec.isFavorite ? 'Remove section from Favourites' : 'Add section to Favourites'}">
+                                    <i class="${sec.isFavorite ? 'fa-solid' : 'fa-regular'} fa-star text-xs"></i>
+                                </button>
+                                <button onclick="moveSection('${sec.id}', -1)" ${secIdx === 0 ? 'disabled' : ''} class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 text-white transition-all flex items-center justify-center cursor-pointer"><i class="fa-solid fa-arrow-up text-xs"></i></button>
+                                <button onclick="moveSection('${sec.id}', 1)" ${secIdx === window.state.sections.length - 1 ? 'disabled' : ''} class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 text-white transition-all flex items-center justify-center cursor-pointer"><i class="fa-solid fa-arrow-down text-xs"></i></button>
+                                <button onclick="openSectionModal('${sec.id}')" class="px-4 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-xs font-medium text-white transition-all cursor-pointer">Edit</button>
+                                <button onclick="deleteSection('${sec.id}')" class="px-4 py-1.5 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-xs font-medium text-red-300 transition-all cursor-pointer">Delete</button>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                `;
+                if (secApps.length > 0) {
+                    secApps.forEach((app) => {
+                        html += `
+                            <div class="flex items-center justify-between p-4 rounded-xl bg-black/30 border border-white/5 hover:border-white/20 transition-all">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br ${app.color} flex items-center justify-center text-white text-base shadow-sm">
+                                        <i class="${app.icon}"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-sm font-bold text-white tracking-tight">${app.name}</h4>
+                                        <p class="text-xs text-slate-400 truncate max-w-[200px]">${app.url}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="toggleAppFavorite('${app.id}', event)" class="w-8 h-8 rounded-lg transition-all flex items-center justify-center cursor-pointer ${app.isFavorite ? 'bg-amber-400/20 text-amber-300 border border-amber-400/40' : 'bg-white/10 hover:bg-white/20 text-white/50 hover:text-amber-300'}" title="${app.isFavorite ? 'Remove from Favourites' : 'Add to Favourites'}">
+                                        <i class="${app.isFavorite ? 'fa-solid' : 'fa-regular'} fa-star text-xs"></i>
+                                    </button>
+                                    <button onclick="openAppEditModal('${app.id}')" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-xs font-medium text-white transition-all cursor-pointer">Edit</button>
+                                    <button onclick="deleteApp('${app.id}')" class="px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-xs font-medium text-red-300 transition-all cursor-pointer">Remove</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    html += '<p class="text-sm text-slate-500 italic py-2">No services assigned to this section.</p>';
+                }
+                html += '</div></div>';
+            });
+            list.innerHTML = html;
+        }
+
+        // Modals & Logic for Apps/Sections
+        function populateSectionDropdown() {
+            const select = document.getElementById('edit-app-section');
+            if(!select) return;
+            select.innerHTML = (window.state.sections || []).map(sec => `<option value="${sec.id}">${sec.name}</option>`).join('');
+        }
+
+        function openAppEditModal(appId = null) {
+            editingAppId = appId;
+            populateSectionDropdown();
+            const modal = document.getElementById('app-editor-modal');
+            const title = document.getElementById('app-editor-title');
+            if (appId) {
+                const app = window.state.apps.find(a => a.id === appId);
+                if (app) {
+                    title.textContent = 'Edit Service';
+                    document.getElementById('edit-app-section').value = app.sectionId;
+                    document.getElementById('edit-app-name').value = app.name;
+                    document.getElementById('edit-app-url').value = app.url;
+                    document.getElementById('edit-app-icon').value = app.icon;
+                    document.getElementById('edit-app-color').value = app.color;
+                    document.getElementById('edit-app-desc').value = app.desc || '';
+                }
+            } else {
+                title.textContent = 'Add Service';
+                document.getElementById('edit-app-name').value = '';
+                document.getElementById('edit-app-url').value = '';
+                document.getElementById('edit-app-icon').value = 'fa-server';
+            }
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeAppEditModal() {
+            document.getElementById('app-editor-modal').classList.add('hidden');
+            document.getElementById('app-editor-modal').classList.remove('flex');
+        }
+
+        function saveAppFromModal() {
+            const sectionId = document.getElementById('edit-app-section').value;
+            const name = document.getElementById('edit-app-name').value.trim();
+            const url = document.getElementById('edit-app-url').value.trim();
+            if (!name || !url) return showToast('Name and URL required', 'error');
+            
+            const newData = {
+                id: editingAppId || Date.now().toString(),
+                sectionId, name, url,
+                icon: document.getElementById('edit-app-icon').value.trim() || 'fa-globe',
+                color: document.getElementById('edit-app-color').value,
+                desc: document.getElementById('edit-app-desc').value.trim()
+            };
+
+            if (editingAppId) {
+                const idx = window.state.apps.findIndex(a => a.id === editingAppId);
+                if(idx >= 0) window.state.apps[idx] = newData;
+            } else {
+                window.state.apps.push(newData);
+            }
+            window.saveState();
+            closeAppEditModal();
+            showToast('Service saved successfully');
+        }
+
+        function openSectionModal(sectionId = null) {
+            editingSectionId = sectionId;
+            const modal = document.getElementById('section-editor-modal');
+            const title = document.getElementById('section-editor-title');
+            if (sectionId) {
+                const sec = window.state.sections.find(s => s.id === sectionId);
+                title.textContent = 'Edit Section';
+                document.getElementById('edit-section-name').value = sec.name;
+                document.getElementById('edit-section-icon').value = sec.icon;
+            } else {
+                title.textContent = 'Create Section';
+                document.getElementById('edit-section-name').value = '';
+                document.getElementById('edit-section-icon').value = 'fa-folder';
+            }
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeSectionModal() {
+            document.getElementById('section-editor-modal').classList.add('hidden');
+            document.getElementById('section-editor-modal').classList.remove('flex');
+        }
+
+        function saveSectionFromModal() {
+            const name = document.getElementById('edit-section-name').value.trim();
+            if (!name) return;
+            const icon = document.getElementById('edit-section-icon').value.trim() || 'fa-folder';
+            
+            if (editingSectionId) {
+                const sec = window.state.sections.find(s => s.id === editingSectionId);
+                if (sec) { sec.name = name; sec.icon = icon; }
+            } else {
+                window.state.sections.push({ id: 'sec-' + Date.now(), name, icon });
+            }
+            window.saveState();
+            closeSectionModal();
+        }
+
+        function moveSection(sectionId, dir) {
+            const idx = window.state.sections.findIndex(s => s.id === sectionId);
+            const target = idx + dir;
+            if (target >= 0 && target < window.state.sections.length) {
+                [window.state.sections[idx], window.state.sections[target]] = [window.state.sections[target], window.state.sections[idx]];
+                window.saveState();
+            }
+        }
+
+        function deleteSection(sectionId) {
+            if (window.state.sections.length <= 1) return showToast('Need at least one section', 'error');
+            window.state.sections = window.state.sections.filter(s => s.id !== sectionId);
+            window.state.apps.forEach(app => { if (app.sectionId === sectionId) app.sectionId = window.state.sections[0].id; });
+            window.saveState();
+        }
+        function deleteApp(appId) { window.state.apps = window.state.apps.filter(a => a.id !== appId); window.saveState(); }
+
+        // Settings: Theme & PIN
+        function setTheme(theme, triggerSave = true) {
+            window.state.wallpaper = theme;
+            
+            if (triggerSave) {
+                window.state.customWallpaperUrl = '';
+                const input = document.getElementById('custom-bg-url');
+                if (input) input.value = '';
+                const fileInput = document.getElementById('bg-file-upload');
+                if (fileInput) fileInput.value = '';
+                const bg = document.getElementById('custom-wallpaper-bg');
+                if (bg) {
+                    bg.style.backgroundImage = '';
+                    bg.classList.add('hidden');
+                }
+            }
+
+            const body = document.getElementById('body-root');
+            if(body) {
+                body.className = body.className.replace(/bg-gnome-\w+/g, '');
+                body.classList.add(`bg-gnome-${theme}`);
+            }
+
+            if (triggerSave) window.saveState();
+        }
+
+        async function handleWallpaperFileUpload(e) {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const res = await fetch('/api/v1/wallpaper', {
+                    method: 'POST',
+                    body: formData
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.url) {
+                        applyCustomWallpaper(data.url, true);
+                        showToast('Custom wallpaper uploaded');
+                    }
+                } else {
+                    showToast('Wallpaper upload failed', 'error');
+                }
+            } catch (err) {
+                console.error("Upload error:", err);
+                showToast('Wallpaper upload failed', 'error');
+            }
+        }
+
+        function applyCustomWallpaper(url = null, triggerSave = true) {
+            const inUrl = (url !== null ? url : document.getElementById('custom-bg-url')?.value)?.trim();
+            const bg = document.getElementById('custom-wallpaper-bg');
+            const input = document.getElementById('custom-bg-url');
+
+            if (inUrl) {
+                window.state.customWallpaperUrl = inUrl;
+                if (input && !inUrl.startsWith('data:image')) input.value = inUrl;
+                if (bg) { 
+                    bg.style.backgroundImage = `url('${inUrl}')`; 
+                    bg.classList.remove('hidden'); 
+                }
+                if (triggerSave) { window.saveState(); showToast('Custom wallpaper applied'); }
+            } else {
+                clearCustomWallpaper(triggerSave);
+            }
+        }
+
+        function clearCustomWallpaper(triggerSave = true) {
+            window.state.customWallpaperUrl = '';
+            const input = document.getElementById('custom-bg-url');
+            if (input) input.value = '';
+            const fileInput = document.getElementById('bg-file-upload');
+            if (fileInput) fileInput.value = '';
+            const bg = document.getElementById('custom-wallpaper-bg');
+            if (bg) {
+                bg.style.backgroundImage = '';
+                bg.classList.add('hidden');
+            }
+            if (triggerSave) { window.saveState(); showToast('Custom wallpaper removed'); }
+        }
+
+        function togglePinProtection() {
+            window.state.pinEnabled = !window.state.pinEnabled;
+            if (window.state.pinEnabled && !window.state.pinCode) window.state.pinCode = '1234';
+            window.saveState();
+            updatePinUI();
+            showToast(window.state.pinEnabled ? 'Lock Enabled' : 'Lock Disabled');
+        }
+
+        function updatePinUI() {
+            const dot = document.getElementById('toggle-pin-dot');
+            const bg = document.getElementById('toggle-pin-btn');
+            if(!dot || !bg) return;
+            if (window.state.pinEnabled) {
+                dot.style.transform = 'translateX(28px)';
+                bg.classList.add('bg-blue-600', 'border-blue-500');
+            } else {
+                dot.style.transform = 'translateX(0px)';
+                bg.classList.remove('bg-blue-600', 'border-blue-500');
+            }
+            
+            const lockBtn = document.getElementById('manual-lock-btn');
+            if (lockBtn) {
+                if (window.state.pinEnabled && !isLocked) {
+                    lockBtn.classList.remove('hidden');
+                    lockBtn.classList.add('flex');
+                } else {
+                    lockBtn.classList.add('hidden');
+                    lockBtn.classList.remove('flex');
+                }
+            }
+        }
+
+        function saveNewPin() {
+            const input = document.getElementById('new-pin-input').value.trim();
+            if (input.length >= 4) {
+                window.state.pinCode = input;
+                window.state.pinEnabled = true;
+                window.saveState();
+                updatePinUI();
+                const msg = document.getElementById('pin-save-msg');
+                msg.textContent = 'PIN updated successfully';
+                msg.className = 'text-xs mt-2 text-emerald-400 font-medium';
+                setTimeout(()=> msg.classList.add('text-transparent'), 3000);
+            }
+        }
+
+        function exportConfig() {
+            const a = document.createElement('a');
+            a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(window.state, null, 2));
+            a.download = "homelab-config.json";
+            a.click();
+        }
+
+        function importConfig(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const r = new FileReader();
+            r.onload = e => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data && data.apps) { window.state = data; window.saveState(); applySettingsState(); showToast('Config restored'); }
+                } catch (err) { showToast('Invalid config file', 'error'); }
+            };
+            r.readAsText(file);
+        }
+
+        function launchApp(url) { if (url && url !== '#') window.open(url, '_blank'); }
+
+        function initTelemetry() {
+            const updateStats = async () => {
+                try {
+                    const res = await fetch('/api/v1/stats');
+                    if (res.ok) {
+                        const data = await res.json();
+                        const cpu = document.getElementById('stat-cpu');
+                        const ram = document.getElementById('stat-ram');
+                        const net = document.getElementById('stat-net');
+                        if (cpu) cpu.textContent = data.cpu + '%';
+                        if (ram) ram.textContent = data.ram + '%';
+                        if (net) net.textContent = data.net;
+                    }
+                } catch (e) {
+                    console.warn("Failed to fetch system stats:", e);
+                }
+            };
+
+            const updateHealth = async () => {
+                try {
+                    const res = await fetch('/api/v1/health');
+                    if (res.ok) {
+                        const healthMap = await res.json();
+                        (window.state.apps || []).forEach(app => {
+                            const isOnline = healthMap[app.id] !== undefined ? healthMap[app.id] : false;
+                            const dotGrid = document.getElementById(`status-dot-${app.id}`);
+                            const dotList = document.getElementById(`status-dot-list-${app.id}`);
+
+                            const bgClass = isOnline ? 'bg-emerald-400' : 'bg-red-500';
+                            const shadowGrid = isOnline ? 'shadow-[0_0_10px_rgba(52,211,153,0.8)]' : 'shadow-[0_0_10px_rgba(239,68,68,0.8)]';
+                            const shadowList = isOnline ? 'shadow-[0_0_6px_rgba(52,211,153,0.8)]' : 'shadow-[0_0_6px_rgba(239,68,68,0.8)]';
+
+                            if (dotGrid) dotGrid.className = `absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-black/40 transition-colors duration-500 ${bgClass} ${shadowGrid}`;
+                            if (dotList) dotList.className = `w-2.5 h-2.5 rounded-full shrink-0 transition-colors duration-500 ${bgClass} ${shadowList}`;
+                        });
+                    }
+                } catch (e) {
+                    console.warn("Failed to fetch service health:", e);
+                }
+            };
+
+            // Attempt WebSocket connection for live telemetry streaming, fallback to HTTP polling
+            try {
+                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                const wsUrl = `${protocol}//${window.location.host}/api/v1/stats/ws`;
+                const ws = new WebSocket(wsUrl);
+
+                ws.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    const cpu = document.getElementById('stat-cpu');
+                    const ram = document.getElementById('stat-ram');
+                    const net = document.getElementById('stat-net');
+                    if (cpu) cpu.textContent = data.cpu + '%';
+                    if (ram) ram.textContent = data.ram + '%';
+                    if (net) net.textContent = data.net;
+                };
+
+                ws.onerror = () => {
+                    setInterval(updateStats, 3000);
+                };
+            } catch (err) {
+                setInterval(updateStats, 3000);
+            }
+
+            updateStats();
+            updateHealth();
+            setInterval(updateHealth, 5000);
+        }
+
+        // ==========================================
+        // FAVOURITES & SLIDE-IN PANEL LOGIC
+        // ==========================================
+        let isFavDrawerOpen = false;
+        let isFavDrawerPinned = false;
+        let favHoverTimer = null;
+
+        window.toggleAppFavorite = function(appId, event) {
+            if (event) { event.stopPropagation(); event.preventDefault(); }
+            const app = (window.state.apps || []).find(a => a.id === appId);
+            if (!app) return;
+            app.isFavorite = !app.isFavorite;
+            window.saveState();
+            showToast(app.isFavorite ? `Added "${app.name}" to Favourites` : `Removed "${app.name}" from Favourites`);
+        };
+
+        window.toggleSectionFavorite = function(secId, event) {
+            if (event) { event.stopPropagation(); event.preventDefault(); }
+            const sec = (window.state.sections || []).find(s => s.id === secId);
+            if (!sec) return;
+            sec.isFavorite = !sec.isFavorite;
+            window.saveState();
+            showToast(sec.isFavorite ? `Added "${sec.name}" section to Favourites` : `Removed "${sec.name}" section from Favourites`);
+        };
+
+        window.toggleFavDrawer = function(forceState) {
+            if (isLocked) return promptPinEntry();
+            isFavDrawerOpen = forceState !== undefined ? forceState : !isFavDrawerOpen;
+            const drawer = document.getElementById('fav-slide-drawer');
+            if (!drawer) return;
+
+            applyDrawerPositioning();
+
+            const pos = window.state.favPanelPosition || 'left';
+            if (isFavDrawerOpen) {
+                if (pos === 'right') {
+                    drawer.classList.remove('translate-x-full');
+                    drawer.classList.add('translate-x-0');
+                } else {
+                    drawer.classList.remove('-translate-x-full');
+                    drawer.classList.add('translate-x-0');
+                }
+                renderFavDrawer();
+            } else {
+                if (!isFavDrawerPinned) {
+                    if (pos === 'right') {
+                        drawer.classList.remove('translate-x-0');
+                        drawer.classList.add('translate-x-full');
+                    } else {
+                        drawer.classList.remove('translate-x-0');
+                        drawer.classList.add('-translate-x-full');
+                    }
+                }
+            }
+        };
+
+        window.toggleFavDrawerPinned = function() {
+            isFavDrawerPinned = !isFavDrawerPinned;
+            const pinIcon = document.getElementById('fav-pin-icon');
+            const pinBtn = document.getElementById('fav-pin-drawer-btn');
+            if (pinIcon && pinBtn) {
+                if (isFavDrawerPinned) {
+                    pinIcon.className = 'fa-solid fa-thumbtack text-amber-400 rotate-45';
+                    pinBtn.classList.add('bg-amber-400/20', 'border', 'border-amber-400/40');
+                    showToast('Favourites panel pinned open');
+                } else {
+                    pinIcon.className = 'fa-solid fa-thumbtack text-slate-300';
+                    pinBtn.classList.remove('bg-amber-400/20', 'border', 'border-amber-400/40');
+                    showToast('Favourites panel unpinned');
+                }
+            }
+        };
+
+        window.toggleFavTriggerMode = function() {
+            const current = window.state.favTriggerMode || 'hover';
+            const next = current === 'hover' ? 'click' : 'hover';
+            changeFavTriggerMode(next);
+        };
+
+        window.changeFavTriggerMode = function(mode) {
+            window.state.favTriggerMode = mode;
+            window.saveState();
+            updateFavModeUI();
+            showToast(`Favourites open trigger mode set to: ${mode === 'hover' ? 'Hover' : 'Click'}`);
+        };
+
+        function updateFavModeUI() {
+            const mode = window.state.favTriggerMode || 'hover';
+            const icon = document.getElementById('fav-mode-icon');
+            const label = document.getElementById('fav-mode-label');
+            const select = document.getElementById('setting-fav-triggermode');
+            
+            if (icon) icon.className = mode === 'hover' ? 'fa-solid fa-hand-pointer text-xs text-amber-400' : 'fa-solid fa-computer-mouse text-xs text-blue-400';
+            if (label) label.textContent = mode === 'hover' ? 'Hover' : 'Click';
+            if (select) select.value = mode;
+        }
+
+        window.changeFavPanelPosition = function(pos) {
+            window.state.favPanelPosition = pos;
+            window.saveState();
+            applyDrawerPositioning();
+            showToast(`Favourites panel position: ${pos === 'right' ? 'Right side' : 'Left side'}`);
+        };
+
+        function applyDrawerPositioning() {
+            const pos = window.state.favPanelPosition || 'left';
+            const drawer = document.getElementById('fav-slide-drawer');
+            const triggerArea = document.getElementById('fav-drawer-trigger-area');
+            const triggerBtn = document.getElementById('fav-drawer-trigger-btn');
+            const selectPos = document.getElementById('setting-fav-position');
+            const isEnabled = window.state.favPanelEnabled !== false;
+
+            if (selectPos) selectPos.value = pos;
+
+            if (triggerArea) {
+                if (!isEnabled) {
+                    triggerArea.classList.add('hidden');
+                } else {
+                    triggerArea.classList.remove('hidden');
+                    if (pos === 'right') {
+                        triggerArea.className = 'fixed right-0 top-1/2 -translate-y-1/2 z-[75] group flex items-center pointer-events-auto';
+                        if (triggerBtn) triggerBtn.className = 'h-28 w-9 rounded-l-2xl glass-panel bg-slate-900/80 backdrop-blur-xl border-r-0 border border-amber-400/30 text-amber-400 hover:text-amber-300 hover:w-11 hover:bg-slate-800 transition-all duration-300 flex flex-col items-center justify-center gap-2 shadow-[0_0_20px_rgba(245,158,11,0.2)] cursor-pointer';
+                    } else {
+                        triggerArea.className = 'fixed left-0 top-1/2 -translate-y-1/2 z-[75] group flex items-center pointer-events-auto';
+                        if (triggerBtn) triggerBtn.className = 'h-28 w-9 rounded-r-2xl glass-panel bg-slate-900/80 backdrop-blur-xl border-l-0 border border-amber-400/30 text-amber-400 hover:text-amber-300 hover:w-11 hover:bg-slate-800 transition-all duration-300 flex flex-col items-center justify-center gap-2 shadow-[0_0_20px_rgba(245,158,11,0.2)] cursor-pointer';
+                    }
+                }
+            }
+
+            if (drawer) {
+                if (pos === 'right') {
+                    drawer.className = `fixed top-0 bottom-0 right-0 w-80 sm:w-96 z-[80] ${isFavDrawerOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-500 ease-apple glass-panel bg-slate-950/95 backdrop-blur-2xl border-l border-white/15 flex flex-col shadow-[0_0_60px_rgba(0,0,0,0.8)]`;
+                } else {
+                    drawer.className = `fixed top-0 bottom-0 left-0 w-80 sm:w-96 z-[80] ${isFavDrawerOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-500 ease-apple glass-panel bg-slate-950/95 backdrop-blur-2xl border-r border-white/15 flex flex-col shadow-[0_0_60px_rgba(0,0,0,0.8)]`;
+                }
+            }
+        }
+
+        window.handleFavTriggerHover = function() {
+            if (window.state.favTriggerMode === 'hover') {
+                clearTimeout(favHoverTimer);
+                favHoverTimer = setTimeout(() => window.toggleFavDrawer(true), 150);
+            }
+        };
+
+        window.handleFavTriggerLeave = function() {
+            if (window.state.favTriggerMode === 'hover' && !isFavDrawerPinned) {
+                clearTimeout(favHoverTimer);
+                favHoverTimer = setTimeout(() => window.toggleFavDrawer(false), 400);
+            }
+        };
+
+        window.handleFavDrawerMouseEnter = function() {
+            if (window.state.favTriggerMode === 'hover') {
+                clearTimeout(favHoverTimer);
+            }
+        };
+
+        window.handleFavDrawerMouseLeave = function() {
+            if (window.state.favTriggerMode === 'hover' && !isFavDrawerPinned) {
+                clearTimeout(favHoverTimer);
+                favHoverTimer = setTimeout(() => window.toggleFavDrawer(false), 400);
+            }
+        };
+
+        window.toggleFavPanelSetting = function() {
+            window.state.favPanelEnabled = !window.state.favPanelEnabled;
+            window.saveState();
+            updateFavPanelToggleUI();
+            applyDrawerPositioning();
+            showToast(window.state.favPanelEnabled ? 'Favourites panel enabled' : 'Favourites panel disabled');
+        };
+
+        function updateFavPanelToggleUI() {
+            const dot = document.getElementById('toggle-favpanel-dot');
+            const bg = document.getElementById('toggle-favpanel-btn');
+            if (!dot || !bg) return;
+            if (window.state.favPanelEnabled !== false) {
+                dot.style.transform = 'translateX(28px)';
+                bg.classList.add('bg-blue-600', 'border-blue-500');
+            } else {
+                dot.style.transform = 'translateX(0px)';
+                bg.classList.remove('bg-blue-600', 'border-blue-500');
+            }
+        }
+
+        window.renderFavDrawer = function() {
+            const content = document.getElementById('fav-drawer-content');
+            const totalBadge = document.getElementById('fav-drawer-total-count');
+            const query = document.getElementById('fav-drawer-search')?.value.trim().toLowerCase() || '';
+
+            if (!content) return;
+
+            const favSections = (window.state.sections || []).filter(s => s.isFavorite && (!query || s.name.toLowerCase().includes(query)));
+            const favApps = (window.state.apps || []).filter(a => a.isFavorite && (!query || a.name.toLowerCase().includes(query) || (a.desc && a.desc.toLowerCase().includes(query))));
+
+            const totalCount = (window.state.sections || []).filter(s => s.isFavorite).length + (window.state.apps || []).filter(a => a.isFavorite).length;
+            if (totalBadge) totalBadge.textContent = totalCount;
+            updateFavHeaderUI();
+
+            if (totalCount === 0 && !query) {
+                content.innerHTML = `
+                    <div class="py-12 px-4 text-center space-y-4">
+                        <div class="w-16 h-16 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-400 flex items-center justify-center mx-auto text-2xl shadow-[0_0_20px_rgba(245,158,11,0.2)]">
+                            <i class="fa-regular fa-star"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold text-white">No Favourites Yet</h3>
+                            <p class="text-xs text-slate-400 mt-1 max-w-[240px] mx-auto">Click the star icon on any application card or category header to add it here.</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            if (favSections.length === 0 && favApps.length === 0 && query) {
+                content.innerHTML = `<p class="text-xs text-slate-400 italic text-center py-8">No favourites match "${query}".</p>`;
+                return;
+            }
+
+            let html = '';
+
+            // Favourite Sections
+            if (favSections.length > 0) {
+                html += `
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between text-[11px] font-bold tracking-wider text-amber-400 uppercase border-b border-amber-400/20 pb-2">
+                            <span class="flex items-center gap-1.5"><i class="fa-solid fa-folder-star"></i> Starred Sections (${favSections.length})</span>
+                        </div>
+                        <div class="space-y-2">
+                `;
+                favSections.forEach(sec => {
+                    const secApps = (window.state.apps || []).filter(a => a.sectionId === sec.id);
+                    html += `
+                        <div class="p-3.5 rounded-2xl glass-pill bg-white/5 hover:bg-white/10 border border-white/10 transition-all space-y-2.5">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-7 h-7 rounded-lg bg-amber-400/20 text-amber-300 flex items-center justify-center text-xs">
+                                        <i class="${sec.icon}"></i>
+                                    </div>
+                                    <span class="text-xs font-bold text-white tracking-tight">${sec.name}</span>
+                                </div>
+                                <button onclick="toggleSectionFavorite('${sec.id}', event)" class="text-amber-400 hover:text-red-400 text-xs p-1 cursor-pointer transition-colors" title="Unstar section">
+                                    <i class="fa-solid fa-star"></i>
+                                </button>
+                            </div>
+                            <div class="grid grid-cols-2 gap-1.5 pt-0.5">
+                    `;
+                    secApps.forEach(app => {
+                        html += `
+                            <button onclick="launchApp('${app.url}')" class="flex items-center gap-2 p-1.5 rounded-xl bg-black/40 hover:bg-black/60 text-left transition-all group cursor-pointer">
+                                <div class="w-6 h-6 rounded-lg bg-gradient-to-br ${app.color} flex items-center justify-center text-white text-[10px] shrink-0">
+                                    <i class="${app.icon}"></i>
+                                </div>
+                                <span class="text-[11px] font-medium text-slate-200 group-hover:text-white truncate">${app.name}</span>
+                            </button>
+                        `;
+                    });
+                    if (secApps.length === 0) {
+                        html += `<span class="text-[10px] text-slate-500 italic col-span-2">No apps in this section</span>`;
+                    }
+                    html += `
+                            </div>
+                        </div>
+                    `;
+                });
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Favourite Apps
+            if (favApps.length > 0) {
+                html += `
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between text-[11px] font-bold tracking-wider text-amber-400 uppercase border-b border-amber-400/20 pb-2">
+                            <span class="flex items-center gap-1.5"><i class="fa-solid fa-star"></i> Starred Services (${favApps.length})</span>
+                        </div>
+                        <div class="grid grid-cols-1 gap-2">
+                `;
+                favApps.forEach(app => {
+                    html += `
+                        <div class="flex items-center justify-between p-3 rounded-2xl glass-pill bg-white/5 hover:bg-white/15 border border-white/10 transition-all duration-300 group cursor-pointer">
+                            <div onclick="launchApp('${app.url}')" class="flex items-center gap-3 flex-1 min-w-0">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br ${app.color} flex items-center justify-center text-white text-lg shadow-md shrink-0 group-hover:scale-105 transition-transform">
+                                    <i class="${app.icon}"></i>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <h4 class="text-xs font-bold text-white tracking-tight truncate">${app.name}</h4>
+                                    <p class="text-[10px] text-slate-400 truncate mt-0.5">${app.desc || app.url}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0 ml-2">
+                                <button onclick="toggleAppFavorite('${app.id}', event)" class="w-7 h-7 rounded-full bg-amber-400/20 hover:bg-red-500/20 text-amber-300 hover:text-red-300 transition-colors flex items-center justify-center cursor-pointer" title="Remove from Favourites">
+                                    <i class="fa-solid fa-star text-xs"></i>
+                                </button>
+                                <button onclick="launchApp('${app.url}')" class="w-7 h-7 rounded-full bg-white/10 group-hover:bg-blue-600 text-white/70 group-hover:text-white transition-colors flex items-center justify-center cursor-pointer">
+                                    <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+
+            content.innerHTML = html;
+        };
+
+        function updateFavHeaderUI() {
+            const totalCount = (window.state.sections || []).filter(s => s.isFavorite).length + (window.state.apps || []).filter(a => a.isFavorite).length;
+            const badge = document.getElementById('fav-header-count');
+            if (badge) badge.textContent = totalCount;
+        }
+
+        // Keyboard Shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (isFavDrawerOpen && !isFavDrawerPinned) toggleFavDrawer(false);
+                if (isSearchOpen) toggleSearchOverlay(false);
+                cancelPinPrompt();
+                closeSettingsModal();
+                closeAppEditModal();
+                closeSectionModal();
+            } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'l') {
+                e.preventDefault(); lockScreen();
+            } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+                e.preventDefault(); toggleSearchOverlay(!isSearchOpen);
+            } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'f') {
+                if (!isSearchOpen) { e.preventDefault(); toggleFavDrawer(); }
+            }
+        });
+
+        window.onload = function() {
+            initSearchInputListener();
+            loadLocalState();
+            updateClock();
+            setInterval(updateClock, 1000);
+            initTelemetry();
+        };
+    </script>
+</body>
+</html>
