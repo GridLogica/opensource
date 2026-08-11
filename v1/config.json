@@ -1,0 +1,128 @@
+{
+  "nodeName": "My Workspace",
+  "nodeBadge": "Workspace",
+  "footerStatus": "Workspace Ready",
+  "footerTag": "v3.0",
+  "clock12h": false,
+  "showDate": true,
+  "showGreeting": true,
+  "clockPosition": "bottom-right",
+  "fontFamily": "Plus Jakarta Sans",
+  "themeMode": "dark",
+  "accentTheme": "theme-sky",
+  "dimAmount": 25,
+  "blurAmount": 0,
+  "port": 3000,
+  "pinEnabled": true,
+  "pinCode": "9999",
+  "privacyMode": false,
+  "showLockButton": true,
+  "showSideDrawer": true,
+  "backgrounds": [
+    "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2070&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2070&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2070&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=2070&auto=format&fit=crop"
+  ],
+  "activeWallpaper": "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop",
+  "activeWallpaperIndex": 1,
+  "navigation": [
+    {
+      "type": "category",
+      "title": "Applications & Apps",
+      "sublinks": [
+        {
+          "title": "All Applications",
+          "action": "modal:modal-services",
+          "badge": "Launch"
+        }
+      ]
+    },
+    {
+      "type": "item",
+      "title": "System Telemetry",
+      "action": "modal:modal-telemetry",
+      "badge": "Live"
+    },
+    {
+      "type": "header",
+      "title": "Personal Shortcuts"
+    },
+    {
+      "type": "item",
+      "title": "GitHub Repositories",
+      "url": "https://github.com"
+    },
+    {
+      "type": "category",
+      "title": "Options",
+      "sublinks": [
+        {
+          "title": "Dashboard Settings",
+          "action": "modal:modal-settings"
+        },
+        {
+          "title": "Search Commands",
+          "action": "modal:modal-cmd",
+          "shortcut": "⌘K"
+        },
+        {
+          "title": "Change Wallpaper",
+          "action": "action:cycleBg"
+        },
+        {
+          "title": "Edit JSON Config",
+          "action": "modal:modal-json"
+        }
+      ]
+    }
+  ],
+  "servicesGrid": [
+    {
+      "name": "Smart Home",
+      "url": "http://homeassistant.local:8123",
+      "subtext": "Automation"
+    },
+    {
+      "name": "Jellyfin Rat",
+      "url": "http://jellyfin.local:8096",
+      "subtext": "Streaming"
+    },
+    {
+      "name": "Nextcloud",
+      "url": "https://nextcloud.local",
+      "subtext": "Personal Cloud"
+    },
+    {
+      "name": "Virtual Server",
+      "url": "https://proxmox.local:8006",
+      "subtext": "Infrastructure",
+      "protected": true
+    },
+    {
+      "name": "Containers",
+      "url": "https://portainer.local:9443",
+      "subtext": "Docker Manager",
+      "protected": true
+    },
+    {
+      "name": "Analytics",
+      "url": "http://grafana.local:3000",
+      "subtext": "Metrics & Dashboards"
+    },
+    {
+      "name": "DNS Shield",
+      "url": "http://pihole.local/admin",
+      "subtext": "Ad-Block Guard"
+    },
+    {
+      "name": "Storage Pool",
+      "url": "https://truenas.local",
+      "subtext": "NAS Storage",
+      "protected": true
+    }
+  ],
+  "updatedAt": 1786435114244
+}
